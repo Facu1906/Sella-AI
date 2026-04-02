@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Turn WhatsApp into a Sales Channel</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --card: rgba(255, 255, 255, 0.06);
+      --card-strong: rgba(255,255,255,0.08);
+      --text: #f5f7fa;
+      --muted: #a0a6b0;
+      --line: rgba(255, 255, 255, 0.08);
+      --accent: #7c5cff;
+      --accent-2: #ff7a59;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: Inter, Arial, sans-serif;
+      margin: 0;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(124,92,255,0.18), transparent 30%),
+        radial-gradient(circle at 80% 0%, rgba(255,122,89,0.12), transparent 30%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 48px 20px 80px;
+    }
+
+    .hero,
+    .section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    }
+
+    .hero {
+      padding: 64px 48px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.06), transparent);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    h1 {
+      font-size: 64px;
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      margin: 0 0 18px;
+      max-width: 760px;
+    }
+
+    h2 {
+      font-size: 34px;
+      margin: 0 0 16px;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      font-size: 18px;
+      line-height: 1.6;
+      margin: 0 0 16px;
+      color: var(--muted);
+    }
+
+    .sub {
+      font-size: 20px;
+      color: #d1d5db;
+      margin-bottom: 28px;
+      max-width: 760px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 16px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: #d7dbea;
+      background: rgba(255,255,255,0.04);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      padding: 15px 22px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      box-shadow: 0 10px 30px rgba(124,92,255,0.4);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 14px 40px rgba(124,92,255,0.6);
+    }
+
+    .btn.secondary {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--text);
+      box-shadow: none;
+    }
+
+    .section {
+      padding: 34px 32px;
+      margin-bottom: 24px;
+      margin-top: 8px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .card {
+      background: var(--card-strong);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 24px;
+      transition: all 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(124,92,255,0.4);
+    }
+
+    .card h3 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+
+    ul {
+      padding-left: 18px;
+      margin: 0;
+    }
+
+    li {
+      margin-bottom: 10px;
+      font-size: 16px;
+      line-height: 1.55;
+      color: #e7e9ef;
+    }
+
+    .demo-box {
+      margin-top: 18px;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: black;
+    }
+
+    iframe {
+      width: 100%;
+      height: 460px;
+      border: 0;
+      display: block;
+    }
+
+    .highlight {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .footer-cta {
+      text-align: center;
+    }
+
+    .footer-cta p {
+      max-width: 760px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .small-note {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 24px 14px 60px; }
+      .hero, .section { padding: 24px 20px; border-radius: 22px; }
+      h1 { font-size: 40px; }
+      h2 { font-size: 26px; }
+      .sub { font-size: 18px; }
+      .grid { grid-template-columns: 1fr; }
+      iframe { height: 260px; }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <section class="hero">
+      <div class="eyebrow">WhatsApp Sales System</div>
+      <h1>Turn WhatsApp into a <span class="highlight">sales channel</span></h1>
+      <p class="sub">
+        Customers arrive with intent, ask questions, and too often drop before buying.
+        We fix that with a guided sales flow that responds instantly, recommends clearly, and moves people toward purchase.
+      </p>
+
+      <div class="cta-row">
+        <a class="btn" href="#demo">See live example</a>
+        <a class="btn secondary" href="./demo.html" target="_blank">Open demo</a>
+      </div>
+      <p class="small-note">Built from real testing of e-commerce WhatsApp flows.</p>
+    </section>
+
+    <section class="section">
+      <h2>What’s happening right now</h2>
+      <p>
+        We tested real e-commerce WhatsApp and AI assistants. The pattern is always the same: people write with intent to buy, but the conversation doesn’t guide them well enough to finish the purchase.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Friction in the experience</h3>
+          <ul>
+            <li>Replies take several seconds or minutes</li>
+            <li>Customers ask something specific and get generic answers</li>
+            <li>Too much information is sent at once</li>
+            <li>The conversation depends on manual follow-up</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Where sales are lost</h3>
+          <ul>
+            <li>Wrong products are recommended</li>
+            <li>The system doesn’t adapt when the customer changes direction</li>
+            <li>No clear path from interest to purchase</li>
+            <li>High-intent chats cool off before checkout</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>The solution</h2>
+      <p>
+        We implement a <span class="highlight">guided WhatsApp sales system</span> that:
+      </p>
+      <ul>
+        <li>Responds instantly</li>
+        <li>Understands what the customer actually wants</li>
+        <li>Guides the conversation step-by-step</li>
+        <li>Recommends the right product clearly</li>
+        <li>Answers FAQs without breaking the flow</li>
+        <li>Passes to your team only when the customer is ready to buy</li>
+      </ul>
+    </section>
+
+    <section class="section" id="demo">
+      <h2>Live Example</h2>
+      <p>
+        This is a simple example of how a WhatsApp conversation can guide a customer step-by-step until purchase.
+      </p>
+
+      <div class="demo-box">
+        <iframe src="./demo.html" title="Live demo" loading="lazy"></iframe>
+      </div>
+
+      <div class="cta-row" style="margin-top:20px;">
+        <a class="btn secondary" href="./demo.html" target="_blank">Try the conversation</a>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Why most assistants don’t convert</h2>
+      <p>
+        After testing real e-commerce WhatsApp assistants, one thing is clear: the problem is not having AI — it’s how the conversation is designed.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>What usually happens</h3>
+          <ul>
+            <li>User asks for a specific product and gets a generic or wrong recommendation</li>
+            <li>The assistant sends too much information at once</li>
+            <li>If the customer says “that’s not what I want”, the flow breaks</li>
+            <li>There is no clear path guiding the user to purchase</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>What this causes</h3>
+          <ul>
+            <li>High-intent customers drop before buying</li>
+            <li>Lower trust in the assistant</li>
+            <li>More manual work for your team</li>
+            <li>You lose sales from traffic you already paid for</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Before vs After</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Before</h3>
+          <ul>
+            <li>Slow or delayed responses</li>
+            <li>Generic or wrong product suggestions</li>
+            <li>Customers get overwhelmed</li>
+            <li>No clear buying path</li>
+            <li>Team handles everything manually</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>After</h3>
+          <ul>
+            <li>Instant responses</li>
+            <li>Correct and clear recommendations</li>
+            <li>Guided buying experience</li>
+            <li>Less friction, more conversions</li>
+            <li>Your team focuses only on hot leads</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section footer-cta">
+      <h2>Want to see this applied to your store?</h2>
+      <p>
+        I can show you a version tailored to your products and customer flow in 10–15 minutes, and you can decide if it makes sense for your business or not.
+      </p>
+      <div class="cta-row" style="justify-content:center;">
+        <a class="btn" href="mailto:facundofn1906@gmail.com?subject=WhatsApp Sales System">Book a call</a>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
