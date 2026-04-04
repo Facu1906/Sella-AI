@@ -1,0 +1,44 @@
+{
+  "shipping": {
+    "summary": "Hacemos envíos a todo Uruguay en 24–72 hs hábiles.",
+    "details": {
+      "montevideo": "Hasta 24 horas hábiles.",
+      "interior": "Entre 24 y 72 horas hábiles.",
+      "costo": "Gratis en compras mayores a $3000. Resto: $250."
+    }
+  },
+  "returns": {
+    "summary": "Cambios y devoluciones dentro de los 30 días con ticket y producto sin uso.",
+    "details": {
+      "plazo": "30 días desde la compra.",
+      "condicion": "Producto sin uso y con etiquetas.",
+      "proceso": "Escribinos con tu número de pedido y te coordinamos."
+    }
+  },
+  "payment": {
+    "summary": "Aceptamos tarjetas de crédito/débito y transferencia bancaria.",
+    "details": {
+      "metodos": [
+        "Tarjeta de crédito",
+        "Tarjeta de débito",
+        "Transferencia bancaria"
+      ],
+      "cuotas": "Hasta 6 cuotas sin interés con tarjetas seleccionadas."
+    }
+  },
+  "pickup": {
+    "summary": "Podés retirar por tienda de lunes a sábado de 10 a 19 hs.",
+    "details": {
+      "direccion": "Av. Principal 1234, Montevideo.",
+      "horarios": "Lunes a sábado 10:00–19:00 hs."
+    }
+  },
+  "warranty": {
+    "summary": "Garantía de 90 días por defectos de fabricación.",
+    "details": {
+      "plazo": "90 días.",
+      "cubre": "Defectos de fabricación, costuras, cierres.",
+      "no_cubre": "Daños por uso inadecuado o lavado incorrecto."
+    }
+  }
+}

@@ -1,0 +1,128 @@
+[
+  {
+    "id": "campera-andes",
+    "name": "Campera Andes",
+    "category": "campera",
+    "gender": [
+      "hombre",
+      "mujer"
+    ],
+    "use_case": [
+      "frio intenso",
+      "invierno",
+      "montana"
+    ],
+    "price": 3990,
+    "price_tier": "mid",
+    "tags": [
+      "abrigo",
+      "impermeable",
+      "capucha",
+      "invierno",
+      "polar"
+    ],
+    "why": [
+      "Abrigo máximo para frío intenso",
+      "Interior polar de alta densidad",
+      "Impermeable al viento",
+      "Capucha ajustable"
+    ],
+    "url": "https://mitienda.com/campera-andes",
+    "image": "https://mitienda.com/images/campera-andes.jpg"
+  },
+  {
+    "id": "campera-urban",
+    "name": "Campera Urban",
+    "category": "campera",
+    "gender": [
+      "hombre",
+      "mujer"
+    ],
+    "use_case": [
+      "invierno",
+      "ciudad",
+      "liviano"
+    ],
+    "price": 2990,
+    "price_tier": "low",
+    "tags": [
+      "urbana",
+      "liviana",
+      "moderna",
+      "invierno",
+      "versatil"
+    ],
+    "why": [
+      "Diseño urbano y versátil",
+      "Ideal para el día a día en ciudad",
+      "Peso ligero sin perder abrigo",
+      "Varios colores disponibles"
+    ],
+    "url": "https://mitienda.com/campera-urban",
+    "image": "https://mitienda.com/images/campera-urban.jpg"
+  },
+  {
+    "id": "buzo-essential",
+    "name": "Buzo Essential",
+    "category": "buzo",
+    "gender": [
+      "hombre",
+      "mujer"
+    ],
+    "use_case": [
+      "media estacion",
+      "primavera",
+      "otoño",
+      "casa"
+    ],
+    "price": 2490,
+    "price_tier": "low",
+    "tags": [
+      "buzo",
+      "media estacion",
+      "comodo",
+      "basico",
+      "algodon"
+    ],
+    "why": [
+      "Algodón premium, muy cómodo",
+      "Perfecto para media estación",
+      "Talle amplio y relajado",
+      "Lavable sin deformar"
+    ],
+    "url": "https://mitienda.com/buzo-essential",
+    "image": "https://mitienda.com/images/buzo-essential.jpg"
+  },
+  {
+    "id": "campera-hombre-trekking",
+    "name": "Campera Trek Pro",
+    "category": "campera",
+    "gender": [
+      "hombre"
+    ],
+    "use_case": [
+      "trekking",
+      "deporte",
+      "exterior",
+      "frio intenso"
+    ],
+    "price": 4490,
+    "price_tier": "high",
+    "tags": [
+      "trekking",
+      "deporte",
+      "hombre",
+      "outdoor",
+      "impermeable",
+      "resistente"
+    ],
+    "why": [
+      "Diseñada para actividad física en frío",
+      "Transpirable y resistente al agua",
+      "Bolsillos funcionales con cierre",
+      "Peso ultra-ligero para el abrigo que da"
+    ],
+    "url": "https://mitienda.com/campera-trek-pro",
+    "image": "https://mitienda.com/images/campera-trek-pro.jpg"
+  }
+]
