@@ -1,0 +1,45 @@
+<link rel="stylesheet" href="./demo.css">
+<script src="./demo.js"></script>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo de Sistema de Ventas</title>
+</head>
+<body>
+  <div id="chat">
+    <div class="header">
+      <div class="avatar">AI</div>
+      <div class="header-text">
+        <div class="header-title">Sistema de Ventas</div>
+        <div class="header-subtitle">
+          <span class="dot"></span>
+          Demo guiada para e-commerce
+        </div>
+      </div>
+    </div>
+
+    <div id="messages">
+      <div class="empty-state" id="emptyState">
+        <h2>Conversación guiada</h2>
+        <p>
+          Esta demo muestra cómo una tienda puede convertir una consulta con intención
+          de compra en una recomendación concreta y llevar al cliente a checkout.
+        </p>
+        <div class="quick-actions">
+          <button class="chip" onclick="sendPreset('Quiero una campera para invierno')">Quiero una campera para invierno</button>
+          <button class="chip" onclick="sendPreset('Hacen envíos?')">Hacen envíos?</button>
+          <button class="chip" onclick="startDemo()">Empezar demo guiada</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="inputArea">
+      <input id="input" placeholder="Escribí como cliente..." />
+      <button class="send-btn" onclick="send()">Enviar</button>
+    </div>
+  </div>
+</body>
+</html>
