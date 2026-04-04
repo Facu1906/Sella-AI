@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { loadStoreData } from "./storeData.mjs";
 import { matchProduct, matchAltProduct, serializeProduct } from "./matcher.mjs";
+
 // ─── Setup ────────────────────────────────────────────────────────────────────
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,12 +23,12 @@ const sessions = {};
 
 function freshSession() {
   return {
-    category: null,    // "campera", "buzo", etc
-    gender: null,      // "hombre" | "mujer" | "unisex"
-    weatherNeed: null, // "frio" | "liviano"
-    priceTier: null,   // "low" | "mid" | "high"
-    rawQuery: null,    // accumulated user text for matching
-    stage: "start",    // start | asking_gender | asking_weather | product_shown | alt_shown | closing
+    category: null,       // "campera", "buzo", etc
+    gender: null,         // "hombre" | "mujer" | "unisex"
+    weatherNeed: null,    // "frio" | "liviano"
+    priceTier: null,      // "low" | "mid" | "high"
+    rawQuery: null,       // accumulated user text for matcher
+    stage: "start",       // start | asking_gender | asking_weather | product_shown | alt_shown | closing
     shownProduct: null,
     shownAltProduct: null,
   };
@@ -43,7 +44,7 @@ function resetSession(userId) {
   return sessions[userId];
 }
 
-// ─── Normalize ────────────────────────────────────────────────────────────────
+// ─── Utilities ────────────────────────────────────────────────────────────────
 function normalize(text) {
   return (text || "")
     .toLowerCase()
@@ -60,11 +61,11 @@ function getUserId(req) {
   return req.ip || "unknown";
 }
 
-// ─── Intent helpers ───────────────────────────────────────────────────────────
 function includesAny(msg, terms) {
   return terms.some((t) => msg.includes(t));
 }
 
+// ─── Intent detection ─────────────────────────────────────────────────────────
 function isGreeting(msg) {
   return includesAny(msg, ["hola", "buenas", "hello", "hi", "menu", "empezar", "reiniciar", "reset", "inicio", "start"]);
 }
@@ -83,29 +84,23 @@ function detectHumanIntent(msg) {
 }
 
 function detectBuyIntent(msg) {
-  return includesAny(msg, ["comprar", "lo quiero", "me lo llevo", "quiero este", "quiero esa", "dale", "vamos", "checkout", "finalizar", "comprar_ahora", "comprar_recomendada"]);
+  return includesAny(msg, ["comprar", "lo quiero", "me lo llevo", "quiero este", "quiero esa", "dale", "checkout", "finalizar"]);
 }
 
 function detectPriceObjection(msg) {
-  return includesAny(msg, ["caro", "cara", "barato", "barata", "mas barato", "economico", "economica", "ver_mas_barata"]);
+  return includesAny(msg, ["caro", "cara", "barato", "barata", "mas barato", "economico", "economica"]);
 }
 
 function detectStyleObjection(msg) {
-  return includesAny(msg, ["no me gusta", "otro estilo", "otra opcion", "otra opción", "algo diferente", "otra_opcion"]);
+  return includesAny(msg, ["no me gusta", "otro estilo", "otra opcion", "algo diferente", "no es lo que busco", "no era eso"]);
 }
 
-function detectCorrection(msg) {
-  return includesAny(msg, ["no es lo que busco", "no era eso", "no quiero eso", "no quiero esa"]);
-}
-
-// ─── Dynamic detection from catalog ──────────────────────────────────────────
+// ─── Dynamic catalog detection ────────────────────────────────────────────────
 function detectCategory(msg, products) {
-  // First: check category names directly
   const categories = [...new Set(products.map((p) => normalize(p.category)))];
   for (const cat of categories) {
     if (msg.includes(cat)) return cat;
   }
-  // Second: check tags and name fragments
   for (const product of products) {
     const terms = [...(product.tags || []).map(normalize), normalize(product.name)];
     if (terms.some((t) => t.length > 3 && msg.includes(t))) return normalize(product.category);
@@ -121,12 +116,9 @@ function detectGender(msg) {
 }
 
 function detectWeatherNeed(msg, products) {
-  const allUseCases = [...new Set(products.flatMap((p) => (p.use_case || []).map(normalize)))];
-  // "frio" signals
   if (includesAny(msg, ["frio intenso", "mucho frio", "invierno", "abrigado", "abrigada", "frio"])) return "frio";
-  // "liviano" signals
   if (includesAny(msg, ["liviano", "liviana", "media estacion", "fresco", "no tanto frio"])) return "liviano";
-  // Check against catalog use cases
+  const allUseCases = [...new Set(products.flatMap((p) => (p.use_case || []).map(normalize)))];
   const found = allUseCases.find((uc) => msg.includes(uc));
   if (found) return found.includes("frio") ? "frio" : "liviano";
   return null;
@@ -138,29 +130,10 @@ function detectPriceSensitivity(msg) {
   return null;
 }
 
-// ─── Policy reply ─────────────────────────────────────────────────────────────
-function buildPolicyReply(intent, policies, session) {
-  const policy = policies[intent];
-  if (!policy) return { reply: "No tengo información sobre eso. Te paso con un asesor 👌" };
-
-  let reply = policy.summary;
-
-  // Re-anchor to flow if mid-conversation
-  if (session.stage === "product_shown" && session.shownProduct) {
-    reply += `\n\n¿Seguimos con la ${session.shownProduct.name}?`;
-    return {
-      reply,
-      actions: [
-        { label: "Sí, comprar ahora", value: "comprar_recomendada" },
-        { label: "Ver opción más económica", value: "ver_mas_barata" },
-      ],
-    };
-  }
-  if (session.category) {
-    reply += `\n\n¿Seguimos buscando lo que necesitás?`;
-  }
-  return { reply };
-}
+// ─── CANONICAL ACTION VALUES ──────────────────────────────────────────────────
+// These are the only action values this system uses. Frontend must match exactly.
+// hombre | mujer | frio_intenso | liviana | comprar_recomendada | comprar_alt
+// ver_mas_barata | otra_opcion | hablar_con_asesor | volver_recomendacion | tengo_una_duda
 
 // ─── Response builders ────────────────────────────────────────────────────────
 function buildProductReply(product, altProduct) {
@@ -195,20 +168,71 @@ function buildClosingReply(product) {
   };
 }
 
+function buildPolicyReply(intent, policies, session) {
+  const policy = policies[intent];
+  if (!policy) {
+    return { reply: "No tengo información sobre eso. Te paso con un asesor 👌" };
+  }
+
+  let reply = policy.summary;
+
+  if (session.stage === "product_shown" && session.shownProduct) {
+    reply += `\n\n¿Seguimos con la ${session.shownProduct.name}?`;
+    return {
+      reply,
+      actions: [
+        { label: "Sí, comprar ahora", value: "comprar_recomendada" },
+        { label: "Ver opción más económica", value: "ver_mas_barata" },
+      ],
+    };
+  }
+
+  if (session.category) {
+    reply += `\n\n¿Seguimos buscando lo que necesitás?`;
+  }
+
+  return { reply };
+}
+
+// ─── Safety fallback ──────────────────────────────────────────────────────────
+function buildFallbackReply(session) {
+  // Context-aware fallback — never a dead end
+  if (session.stage === "product_shown" && session.shownProduct) {
+    return {
+      reply: `Te ayudo 👌 ¿Qué necesitás saber sobre ${session.shownProduct.name}?`,
+      actions: [
+        { label: "Comprar ahora", value: "comprar_recomendada" },
+        { label: "Ver opción más económica", value: "ver_mas_barata" },
+        { label: "Hablar con asesor", value: "hablar_con_asesor" },
+      ],
+    };
+  }
+  if (session.category && !session.gender) {
+    return {
+      reply: `Te ayudo 👌 ¿Lo buscás para hombre o mujer?`,
+      actions: [
+        { label: "Hombre", value: "hombre" },
+        { label: "Mujer", value: "mujer" },
+      ],
+    };
+  }
+  return {
+    reply: `Te ayudo 👌 Decime qué estás buscando y te encuentro la mejor opción.`,
+  };
+}
+
 // ─── Routes ───────────────────────────────────────────────────────────────────
 app.get("/", (req, res) => res.send("AI Sales Assistant 🚀"));
 
-// Expose catalog to frontend (used by demo.js to load real products)
 app.get("/api/products", async (req, res) => {
   try {
     const { products } = await loadStoreData(STORE);
     res.json(products);
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: "Could not load catalog" });
   }
 });
 
-// Demo start — preloads category so landing page can trigger it
 app.get("/demo-start", async (req, res) => {
   const userId = getUserId(req);
   const session = resetSession(userId);
@@ -218,7 +242,7 @@ app.get("/demo-start", async (req, res) => {
   session.stage = "asking_gender";
 
   res.json({
-    reply: `Hola 👋\n\nSoy el sistema de ventas.\n\nTe ayudo a encontrar la mejor opción y llevarte a compra.\n\nVeo que estás buscando una ${session.category}.\n¿La buscás para hombre o mujer?`,
+    reply: `Hola 👋\n\nSoy el sistema de ventas.\n\nVeo que estás buscando una ${session.category}.\n¿La buscás para hombre o mujer?`,
     actions: [
       { label: "Hombre", value: "hombre" },
       { label: "Mujer", value: "mujer" },
@@ -233,12 +257,13 @@ app.post("/chat", async (req, res) => {
     const msg = normalize(message);
     const userId = getUserId(req);
 
-    if (!msg) return res.json({ reply: "Contame qué estás buscando 👌" });
+    if (!msg) {
+      return res.json({ reply: "Contame qué estás buscando 👌" });
+    }
 
-    // Load store data (cached)
     const { products, policies } = await loadStoreData(STORE);
 
-    // ── Reset / greeting ─────────────────────────────────────────────────
+    // ── Greeting / reset ─────────────────────────────────────────────────
     if (isGreeting(msg)) {
       resetSession(userId);
       return res.json({
@@ -248,27 +273,27 @@ app.post("/chat", async (req, res) => {
 
     const session = getSession(userId);
 
-    // ── Extract signals from message ─────────────────────────────────────
-    const detectedGender = detectGender(msg);
+    // ── Canonical action shortcuts ────────────────────────────────────────
+    // These match button values from frontend exactly — fast path, no NLP needed
+    if (msg === "hombre")      { session.gender = "hombre"; }
+    if (msg === "mujer")       { session.gender = "mujer"; }
+    if (msg === "frio_intenso") { session.weatherNeed = "frio"; }
+    if (msg === "liviana")     { session.weatherNeed = "liviano"; }
+
+    // ── Extract NLP signals from free text ────────────────────────────────
+    const detectedGender   = detectGender(msg);
     const detectedCategory = detectCategory(msg, products);
-    const detectedWeather = detectWeatherNeed(msg, products);
-    const detectedPrice = detectPriceSensitivity(msg);
+    const detectedWeather  = detectWeatherNeed(msg, products);
+    const detectedPrice    = detectPriceSensitivity(msg);
 
-    if (detectedGender) session.gender = detectedGender;
+    if (detectedGender)   session.gender = detectedGender;
     if (detectedCategory) session.category = detectedCategory;
-    if (detectedWeather) session.weatherNeed = detectedWeather;
-    if (detectedPrice) session.priceTier = detectedPrice;
+    if (detectedWeather)  session.weatherNeed = detectedWeather;
+    if (detectedPrice)    session.priceTier = detectedPrice;
 
-    // Accumulate raw context for matcher
     session.rawQuery = session.rawQuery ? session.rawQuery + " " + msg : msg;
 
-    // ── Button value shortcuts (from frontend action buttons) ────────────
-    if (msg === "hombre") { session.gender = "hombre"; }
-    if (msg === "mujer") { session.gender = "mujer"; }
-    if (msg === "frio_intenso") { session.weatherNeed = "frio"; }
-    if (msg === "liviana" || msg === "liviano") { session.weatherNeed = "liviano"; }
-
-    // ── Human handoff ────────────────────────────────────────────────────
+    // ── Human handoff ─────────────────────────────────────────────────────
     if (detectHumanIntent(msg) || msg === "hablar_con_asesor") {
       session.stage = "closing";
       return res.json({
@@ -277,32 +302,39 @@ app.post("/chat", async (req, res) => {
       });
     }
 
-    // ── Policy / FAQ ─────────────────────────────────────────────────────
+    // ── Policy / FAQ ──────────────────────────────────────────────────────
     const policyIntent = detectPolicyIntent(msg);
     if (policyIntent || msg === "tengo_una_duda") {
       const intent = policyIntent || "shipping";
       return res.json(buildPolicyReply(intent, policies, session));
     }
 
-    // ── Buy intent ───────────────────────────────────────────────────────
+    // ── Buy — primary product ─────────────────────────────────────────────
     if (detectBuyIntent(msg) || msg === "comprar_recomendada") {
       const product = session.shownProduct;
       if (product) {
         session.stage = "closing";
         return res.json(buildClosingReply(product));
       }
-      return res.json({ reply: `Antes de comprar, decime qué estás buscando y te recomiendo la mejor opción 👌` });
+      return res.json({
+        reply: `Antes de comprar, decime qué estás buscando y te recomiendo la mejor opción 👌`,
+      });
     }
 
+    // ── Buy — alt product ─────────────────────────────────────────────────
     if (msg === "comprar_alt") {
       const product = session.shownAltProduct;
       if (product) {
         session.stage = "closing";
         return res.json(buildClosingReply(product));
       }
+      // Alt not in session (e.g. user typed "comprar_alt" cold) — fallback gracefully
+      return res.json({
+        reply: `Antes de comprar, decime qué estás buscando y te recomiendo la mejor opción 👌`,
+      });
     }
 
-    // ── Price objection ──────────────────────────────────────────────────
+    // ── Price objection ───────────────────────────────────────────────────
     if (detectPriceObjection(msg) || msg === "ver_mas_barata") {
       session.priceTier = "low";
       const primary = session.shownProduct;
@@ -315,13 +347,13 @@ app.post("/chat", async (req, res) => {
         }
       }
       return res.json({
-        reply: `Entiendo 👌 Por el momento esta es nuestra mejor opción en ese rango.\n\n¿Querés que te pase con un asesor para ver si hay algo más?`,
+        reply: `Entiendo 👌 Por el momento esta es nuestra mejor opción en ese rango.\n\n¿Querés que te pase con un asesor?`,
         actions: [{ label: "Hablar con asesor", value: "hablar_con_asesor" }],
       });
     }
 
-    // ── Style objection / another option ─────────────────────────────────
-    if (detectStyleObjection(msg) || detectCorrection(msg) || msg === "otra_opcion") {
+    // ── Style objection / another option ──────────────────────────────────
+    if (detectStyleObjection(msg) || msg === "otra_opcion") {
       session.weatherNeed = null;
       session.shownProduct = null;
       session.shownAltProduct = null;
@@ -336,8 +368,6 @@ app.post("/chat", async (req, res) => {
     }
 
     // ── Guided flow ───────────────────────────────────────────────────────
-
-    // No category → try to detect or ask
     if (!session.category) {
       const earlyMatch = matchProduct(products, session);
       if (earlyMatch) {
@@ -348,10 +378,11 @@ app.post("/chat", async (req, res) => {
         session.stage = "product_shown";
         return res.json(buildProductReply(earlyMatch, alt));
       }
-      return res.json({ reply: `¿Qué estás buscando hoy? Podés decirme el tipo de prenda, para quién es, o el uso que le querés dar 👌` });
+      return res.json({
+        reply: `¿Qué estás buscando hoy? Podés decirme el tipo de prenda, para quién es, o el uso que le querés dar 👌`,
+      });
     }
 
-    // Category known, no gender → ask
     if (!session.gender) {
       session.stage = "asking_gender";
       return res.json({
@@ -363,7 +394,6 @@ app.post("/chat", async (req, res) => {
       });
     }
 
-    // Gender known, no weather need → ask
     if (!session.weatherNeed) {
       session.stage = "asking_weather";
       return res.json({
@@ -375,14 +405,10 @@ app.post("/chat", async (req, res) => {
       });
     }
 
-    // All signals → match and recommend
+    // All signals → match
     const product = matchProduct(products, session);
-
     if (!product) {
-      return res.json({
-        reply: `No encontré una opción que encaje exactamente. ¿Querés que te pase con un asesor?`,
-        actions: [{ label: "Hablar con asesor", value: "hablar_con_asesor" }],
-      });
+      return res.json(buildFallbackReply(session));
     }
 
     const alt = matchAltProduct(products, session, product);
