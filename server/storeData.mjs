@@ -1,39 +1,41 @@
-export const products = [
-  {
-    name: "Campera Urban",
-    use_case: "invierno",
-    price: 2990,
-    link: "https://mitienda.com/campera-urban"
-  },
-  {
-    name: "Campera Andes",
-    use_case: "frio intenso",
-    price: 3990,
-    link: "https://mitienda.com/campera-andes"
-  },
-  {
-    name: "Buzo Essential",
-    use_case: "media estacion",
-    price: 2490,
-    link: "https://mitienda.com/buzo-essential"
-  }
-];
+import { readFile } from "fs/promises";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
 
-export const policies = `
-ENVÍOS
-Hacemos envíos a todo Uruguay.
-Montevideo: hasta 24 horas hábiles.
-Interior: entre 24 y 72 horas hábiles.
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-CAMBIOS
-Los cambios se pueden realizar dentro de los 30 días con ticket y producto sin uso.
+// In-memory cache — avoids re-reading disk on every request
+const cache = new Map();
 
-DEVOLUCIONES
-Se aceptan devoluciones dentro de los 30 días.
+/**
+ * Load products + policies for a given store ID.
+ * Files expected at: /catalog/{storeId}/products.json
+ *                    /catalog/{storeId}/policies.json
+ *
+ * @param {string} storeId  e.g. "demo-store"
+ * @returns {{ products: object[], policies: object }}
+ */
+export async function loadStoreData(storeId) {
+  if (cache.has(storeId)) return cache.get(storeId);
 
-RETIRO
-Se puede retirar por tienda.
+  const base = resolve(__dirname, "..", "catalog", storeId);
 
-PAGOS
-Aceptamos tarjetas y transferencia bancaria.
-`;
+  const [productsRaw, policiesRaw] = await Promise.all([
+    readFile(`${base}/products.json`, "utf-8"),
+    readFile(`${base}/policies.json`, "utf-8"),
+  ]);
+
+  const data = {
+    products: JSON.parse(productsRaw),
+    policies: JSON.parse(policiesRaw),
+  };
+
+  cache.set(storeId, data);
+  console.log(`[store] Loaded "${storeId}" — ${data.products.length} products`);
+  return data;
+}
+
+/** Clear cache for a store (useful during dev / hot-reload). */
+export function clearStoreCache(storeId) {
+  cache.delete(storeId);
+}

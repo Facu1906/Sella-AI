@@ -3,146 +3,47 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
-
-const app = express();
-
+import { loadStoreData } from "./storeData.mjs";
+import { matchProduct, matchAltProduct, serializeProduct } from "./matcher.mjs";
+// ─── Setup ────────────────────────────────────────────────────────────────────
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const publicPath = path.join(__dirname, "..", "Public");
 
-app.use(cors());
-app.use(express.json());
-app.use(express.static(publicPath));
-
+const STORE = process.env.STORE || "demo-store";
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "..", "public")));
 
-/**
- * In-memory sessions for demo purposes.
- * Replace with Redis / DB later if needed.
- */
+// ─── Sessions ─────────────────────────────────────────────────────────────────
 const sessions = {};
 
-/**
- * Mock catalog.
- * Keep this tight for demo quality.
- */
-const PRODUCTS = {
-  campera: {
-    hombre: {
-      frio: {
-        id: "campera-andes-hombre",
-        name: "Campera Andes Hombre",
-        price: 3990,
-        currency: "$",
-        url: "https://mitienda.com/campera-andes-hombre",
-        image: "https://via.placeholder.com/400x500?text=Campera+Andes+Hombre",
-        why: [
-          "Abriga bien para frío intenso",
-          "Corte versátil para uso diario",
-          "Una de las opciones más sólidas para invierno",
-        ],
-        alt: {
-          id: "campera-urban-hombre",
-          name: "Campera Urban Hombre",
-          price: 2990,
-          currency: "$",
-          url: "https://mitienda.com/campera-urban-hombre",
-          image: "https://via.placeholder.com/400x500?text=Campera+Urban+Hombre",
-          why: [
-            "Más económica",
-            "Más liviana",
-            "Mejor si priorizás precio sobre abrigo máximo",
-          ],
-        },
-      },
-      liviano: {
-        id: "campera-light-hombre",
-        name: "Campera Light Hombre",
-        price: 2790,
-        currency: "$",
-        url: "https://mitienda.com/campera-light-hombre",
-        image: "https://via.placeholder.com/400x500?text=Campera+Light+Hombre",
-        why: [
-          "Mejor para media estación",
-          "Más cómoda para uso diario",
-          "Buena opción si no necesitás abrigo extremo",
-        ],
-        alt: {
-          id: "campera-urban-hombre",
-          name: "Campera Urban Hombre",
-          price: 2990,
-          currency: "$",
-          url: "https://mitienda.com/campera-urban-hombre",
-          image: "https://via.placeholder.com/400x500?text=Campera+Urban+Hombre",
-          why: [
-            "Un poco más abrigada",
-            "Más versátil",
-            "Mejor balance entre precio y uso",
-          ],
-        },
-      },
-    },
-    mujer: {
-      frio: {
-        id: "campera-andes-mujer",
-        name: "Campera Andes Mujer",
-        price: 3990,
-        currency: "$",
-        url: "https://mitienda.com/campera-andes-mujer",
-        image: "https://via.placeholder.com/400x500?text=Campera+Andes+Mujer",
-        why: [
-          "Pensada para frío intenso",
-          "Cómoda para uso diario",
-          "Muy buena opción si querés ir a lo seguro",
-        ],
-        alt: {
-          id: "campera-urban-mujer",
-          name: "Campera Urban Mujer",
-          price: 2990,
-          currency: "$",
-          url: "https://mitienda.com/campera-urban-mujer",
-          image: "https://via.placeholder.com/400x500?text=Campera+Urban+Mujer",
-          why: [
-            "Más económica",
-            "Más liviana",
-            "Buena si buscás cuidar presupuesto",
-          ],
-        },
-      },
-      liviano: {
-        id: "campera-light-mujer",
-        name: "Campera Light Mujer",
-        price: 2790,
-        currency: "$",
-        url: "https://mitienda.com/campera-light-mujer",
-        image: "https://via.placeholder.com/400x500?text=Campera+Light+Mujer",
-        why: [
-          "Ideal para días frescos",
-          "Más liviana y cómoda",
-          "Buena opción si no necesitás mucho abrigo",
-        ],
-        alt: {
-          id: "campera-urban-mujer",
-          name: "Campera Urban Mujer",
-          price: 2990,
-          currency: "$",
-          url: "https://mitienda.com/campera-urban-mujer",
-          image: "https://via.placeholder.com/400x500?text=Campera+Urban+Mujer",
-          why: [
-            "Más versátil",
-            "Un poco más abrigada",
-            "Buena relación precio/uso",
-          ],
-        },
-      },
-    },
-  },
-};
+function freshSession() {
+  return {
+    category: null,    // "campera", "buzo", etc
+    gender: null,      // "hombre" | "mujer" | "unisex"
+    weatherNeed: null, // "frio" | "liviano"
+    priceTier: null,   // "low" | "mid" | "high"
+    rawQuery: null,    // accumulated user text for matching
+    stage: "start",    // start | asking_gender | asking_weather | product_shown | alt_shown | closing
+    shownProduct: null,
+    shownAltProduct: null,
+  };
+}
 
+function getSession(userId) {
+  if (!sessions[userId]) sessions[userId] = freshSession();
+  return sessions[userId];
+}
+
+function resetSession(userId) {
+  sessions[userId] = freshSession();
+  return sessions[userId];
+}
+
+// ─── Normalize ────────────────────────────────────────────────────────────────
 function normalize(text) {
   return (text || "")
     .toLowerCase()
@@ -151,260 +52,133 @@ function normalize(text) {
     .trim();
 }
 
-function createSession() {
-  return {
-    category: null,
-    gender: null,
-    weatherNeed: null,
-    stage: "start",
-    shownProduct: null,
-    shownAltProduct: null,
-  };
-}
-
 function getUserId(req) {
   const forwarded = req.headers["x-forwarded-for"];
   if (typeof forwarded === "string" && forwarded.length > 0) {
     return forwarded.split(",")[0].trim();
   }
-  return req.ip || "unknown-user";
+  return req.ip || "unknown";
 }
 
-function resetSession(userId) {
-  sessions[userId] = createSession();
-  return sessions[userId];
-}
-
-function getSession(userId) {
-  if (!sessions[userId]) {
-    sessions[userId] = createSession();
-  }
-  return sessions[userId];
-}
-
+// ─── Intent helpers ───────────────────────────────────────────────────────────
 function includesAny(msg, terms) {
-  return terms.some((term) => msg.includes(term));
+  return terms.some((t) => msg.includes(t));
 }
 
 function isGreeting(msg) {
-  return includesAny(msg, [
-    "hola",
-    "buenas",
-    "hello",
-    "hi",
-    "menu",
-    "menú",
-    "empezar",
-    "reiniciar",
-    "reset",
-    "inicio",
-    "start",
-  ]);
+  return includesAny(msg, ["hola", "buenas", "hello", "hi", "menu", "empezar", "reiniciar", "reset", "inicio", "start"]);
 }
 
-function detectSupportIntent(msg) {
-  return includesAny(msg, [
-    "envio",
-    "envios",
-    "interior",
-    "pago",
-    "pagos",
-    "cambio",
-    "cambios",
-    "devolucion",
-    "devolver",
-    "tarda",
-    "cuotas",
-    "tarjeta",
-    "retiro",
-    "local",
-  ]);
+function detectPolicyIntent(msg) {
+  if (includesAny(msg, ["envio", "envios", "entrega", "despacho", "shipping", "tarda", "interior"])) return "shipping";
+  if (includesAny(msg, ["cambio", "cambios", "devolucion", "devolver", "reembolso", "return"])) return "returns";
+  if (includesAny(msg, ["pago", "pagos", "cuotas", "tarjeta", "efectivo", "transferencia"])) return "payment";
+  if (includesAny(msg, ["garantia", "warranty"])) return "warranty";
+  if (includesAny(msg, ["retiro", "retirar", "local", "sucursal", "pickup"])) return "pickup";
+  return null;
 }
 
 function detectHumanIntent(msg) {
-  return includesAny(msg, [
-    "asesor",
-    "persona",
-    "humano",
-    "hablar con alguien",
-    "hablar con una persona",
-    "vendedor",
-    "agente",
-  ]);
+  return includesAny(msg, ["asesor", "persona", "humano", "hablar con alguien", "vendedor", "agente"]);
 }
 
 function detectBuyIntent(msg) {
-  return includesAny(msg, [
-    "comprar",
-    "lo quiero",
-    "me lo llevo",
-    "quiero este",
-    "quiero esa",
-    "quiero esa campera",
-    "quiero esa opcion",
-    "quiero esta",
-    "quiero esta opcion",
-    "dale",
-    "vamos con esa",
-    "ir al checkout",
-    "checkout",
-    "finalizar",
-  ]);
+  return includesAny(msg, ["comprar", "lo quiero", "me lo llevo", "quiero este", "quiero esa", "dale", "vamos", "checkout", "finalizar", "comprar_ahora", "comprar_recomendada"]);
 }
 
 function detectPriceObjection(msg) {
-  return includesAny(msg, [
-    "caro",
-    "cara",
-    "barato",
-    "barata",
-    "mas barato",
-    "mas barata",
-    "economico",
-    "economica",
-    "precio",
-  ]);
+  return includesAny(msg, ["caro", "cara", "barato", "barata", "mas barato", "economico", "economica", "ver_mas_barata"]);
 }
 
 function detectStyleObjection(msg) {
-  return includesAny(msg, [
-    "no me gusta",
-    "otro estilo",
-    "otra opcion",
-    "otra opción",
-    "algo diferente",
-    "otra",
-  ]);
+  return includesAny(msg, ["no me gusta", "otro estilo", "otra opcion", "otra opción", "algo diferente", "otra_opcion"]);
 }
 
 function detectCorrection(msg) {
-  return includesAny(msg, [
-    "no es lo que busco",
-    "no era eso",
-    "no",
-    "no quiero eso",
-    "no quiero esa",
-    "no quiero esa opcion",
-  ]);
+  return includesAny(msg, ["no es lo que busco", "no era eso", "no quiero eso", "no quiero esa"]);
 }
 
-function detectUnsure(msg) {
-  return includesAny(msg, [
-    "no se",
-    "no estoy seguro",
-    "no estoy segura",
-    "no sé",
-    "ayudame a elegir",
-    "cual me conviene",
-    "cual me recomendas",
-    "cual me recomendás",
-  ]);
-}
-
-function detectCategory(msg) {
-  if (includesAny(msg, ["campera", "campera", "jacket", "abrigo"])) {
-    return "campera";
+// ─── Dynamic detection from catalog ──────────────────────────────────────────
+function detectCategory(msg, products) {
+  // First: check category names directly
+  const categories = [...new Set(products.map((p) => normalize(p.category)))];
+  for (const cat of categories) {
+    if (msg.includes(cat)) return cat;
+  }
+  // Second: check tags and name fragments
+  for (const product of products) {
+    const terms = [...(product.tags || []).map(normalize), normalize(product.name)];
+    if (terms.some((t) => t.length > 3 && msg.includes(t))) return normalize(product.category);
   }
   return null;
 }
 
 function detectGender(msg) {
-  if (includesAny(msg, ["hombre", "para hombre", "de hombre", "masculino"])) {
-    return "hombre";
-  }
-  if (includesAny(msg, ["mujer", "para mujer", "de mujer", "femenino"])) {
-    return "mujer";
-  }
+  if (includesAny(msg, ["mujer", "dama", "femenino", "para mujer", "de mujer"])) return "mujer";
+  if (includesAny(msg, ["hombre", "caballero", "masculino", "para hombre", "de hombre"])) return "hombre";
+  if (msg === "unisex") return "unisex";
   return null;
 }
 
-function detectWeatherNeed(msg) {
-  if (includesAny(msg, ["frio intenso", "mucho frio", "mucho frío", "frio", "invierno", "abrigada", "abrigado"])) {
-    return "frio";
-  }
-  if (includesAny(msg, ["liviano", "liviana", "media estacion", "media estación", "algo fresco", "no tanto frio"])) {
-    return "liviano";
-  }
+function detectWeatherNeed(msg, products) {
+  const allUseCases = [...new Set(products.flatMap((p) => (p.use_case || []).map(normalize)))];
+  // "frio" signals
+  if (includesAny(msg, ["frio intenso", "mucho frio", "invierno", "abrigado", "abrigada", "frio"])) return "frio";
+  // "liviano" signals
+  if (includesAny(msg, ["liviano", "liviana", "media estacion", "fresco", "no tanto frio"])) return "liviano";
+  // Check against catalog use cases
+  const found = allUseCases.find((uc) => msg.includes(uc));
+  if (found) return found.includes("frio") ? "frio" : "liviano";
   return null;
 }
 
-function formatCurrency(value, currency = "$") {
-  return `${currency}${value}`;
+function detectPriceSensitivity(msg) {
+  if (includesAny(msg, ["barato", "economico", "mas barato", "precio bajo"])) return "low";
+  if (includesAny(msg, ["premium", "mejor calidad", "lo mejor"])) return "high";
+  return null;
 }
 
-function getProduct(session) {
-  const category = session.category;
-  const gender = session.gender;
-  const weatherNeed = session.weatherNeed;
+// ─── Policy reply ─────────────────────────────────────────────────────────────
+function buildPolicyReply(intent, policies, session) {
+  const policy = policies[intent];
+  if (!policy) return { reply: "No tengo información sobre eso. Te paso con un asesor 👌" };
 
-  if (!category || !gender || !weatherNeed) return null;
+  let reply = policy.summary;
 
-  return PRODUCTS?.[category]?.[gender]?.[weatherNeed] || null;
+  // Re-anchor to flow if mid-conversation
+  if (session.stage === "product_shown" && session.shownProduct) {
+    reply += `\n\n¿Seguimos con la ${session.shownProduct.name}?`;
+    return {
+      reply,
+      actions: [
+        { label: "Sí, comprar ahora", value: "comprar_recomendada" },
+        { label: "Ver opción más económica", value: "ver_mas_barata" },
+      ],
+    };
+  }
+  if (session.category) {
+    reply += `\n\n¿Seguimos buscando lo que necesitás?`;
+  }
+  return { reply };
 }
 
-function productReply(product) {
-  const whyText = product.why.map((item) => `• ${item}`).join("\n");
-
+// ─── Response builders ────────────────────────────────────────────────────────
+function buildProductReply(product, altProduct) {
   return {
-    reply: `Esta es la mejor opción para lo que estás buscando 👇
-
-${product.name}
-${formatCurrency(product.price, product.currency)}
-
-${whyText}
-
-👉 Te recomiendo ir por esta.
-
-¿Querés que te lleve a comprarla?`,
-    product: {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      currency: product.currency,
-      url: product.url,
-      image: product.image,
-    },
+    reply: `Esta es la mejor opción para lo que buscás 👇\n\nTe recomiendo ir por esta.`,
+    product: serializeProduct(product),
     actions: [
-      { label: "Comprar ahora", value: "comprar_ahora" },
-      { label: "Ver opción más económica", value: "ver_mas_barata" },
+      { label: "Comprar ahora", value: "comprar_recomendada" },
+      ...(altProduct ? [{ label: "Ver opción más económica", value: "ver_mas_barata" }] : []),
       { label: "Tengo una duda", value: "tengo_una_duda" },
     ],
   };
 }
 
-function altProductReply(altProduct, primaryProduct) {
-  const whyText = altProduct.why.map((item) => `• ${item}`).join("\n");
-
+function buildAltProductReply(altProduct, primaryProduct) {
   return {
-    reply: `Sí, te puedo mostrar una opción más económica 👇
-
-${altProduct.name}
-${formatCurrency(altProduct.price, altProduct.currency)}
-
-${whyText}
-
-Si priorizás precio, esta te conviene más.
-Si querés más abrigo y mejor rendimiento para invierno, sigo recomendando ${primaryProduct.name}.
-
-¿Con cuál querés avanzar?`,
-    products: [
-      {
-        id: altProduct.id,
-        name: altProduct.name,
-        price: altProduct.price,
-        currency: altProduct.currency,
-        url: altProduct.url,
-        image: altProduct.image,
-      },
-      {
-        id: primaryProduct.id,
-        name: primaryProduct.name,
-        price: primaryProduct.price,
-        currency: primaryProduct.currency,
-        url: primaryProduct.url,
-        image: primaryProduct.image,
-      },
-    ],
+    reply: `Sí, acá hay una opción más accesible 👇\n\nSi priorizás precio, esta te conviene más.\nSi querés más abrigo, sigo recomendando ${primaryProduct.name}.`,
+    products: [serializeProduct(altProduct), serializeProduct(primaryProduct)],
     actions: [
       { label: "Comprar opción económica", value: "comprar_alt" },
       { label: "Comprar recomendada", value: "comprar_recomendada" },
@@ -413,105 +187,38 @@ Si querés más abrigo y mejor rendimiento para invierno, sigo recomendando ${pr
   };
 }
 
-function faqReply(session) {
-  if (session.stage === "closing") {
-    return {
-      reply: `Sí, hacemos envíos a todo Uruguay en 24–72 hs 👌
-
-Si querés, te llevo directo a la compra ahora.`,
-      actions: [
-        { label: "Ir a comprar", value: "comprar_ahora" },
-        { label: "Hablar con asesor", value: "hablar_con_asesor" },
-      ],
-    };
-  }
-
-  if (session.shownProduct) {
-    return {
-      reply: `Sí, hacemos envíos a todo Uruguay en 24–72 hs 👌
-
-Si querés, avanzamos con la opción recomendada ahora.`,
-      actions: [
-        { label: "Ir a comprar", value: "comprar_ahora" },
-        { label: "Ver opción más económica", value: "ver_mas_barata" },
-      ],
-    };
-  }
-
+function buildClosingReply(product) {
   return {
-    reply: `Sí, hacemos envíos a todo Uruguay en 24–72 hs 👌
-
-Decime qué producto estás buscando y te ayudo a encontrar la mejor opción.`,
+    reply: `Perfecto 👌\n\nTe llevo directo a compra:\n\n${product.name} — $${product.price}\n\n${product.url}`,
+    product: serializeProduct(product),
+    actions: [{ label: "Hablar con asesor", value: "hablar_con_asesor" }],
   };
 }
 
-function fallbackReply(session) {
-  if (!session.category) {
-    return {
-      reply: `Te ayudo 👌
+// ─── Routes ───────────────────────────────────────────────────────────────────
+app.get("/", (req, res) => res.send("AI Sales Assistant 🚀"));
 
-¿Qué estás buscando hoy? Por ejemplo: campera, abrigo o jacket.`,
-    };
+// Expose catalog to frontend (used by demo.js to load real products)
+app.get("/api/products", async (req, res) => {
+  try {
+    const { products } = await loadStoreData(STORE);
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: "Could not load catalog" });
   }
+});
 
-  if (session.category === "campera" && !session.gender) {
-    return {
-      reply: `Bien 👌 ¿La buscás para hombre o mujer?`,
-      actions: [
-        { label: "Hombre", value: "hombre" },
-        { label: "Mujer", value: "mujer" },
-      ],
-    };
-  }
-
-  if (session.category === "campera" && !session.weatherNeed) {
-    return {
-      reply: `Perfecto 👍 ¿La querés para frío intenso o algo más liviano?`,
-      actions: [
-        { label: "Frío intenso", value: "frio_intenso" },
-        { label: "Más liviana", value: "liviana" },
-      ],
-    };
-  }
-
-  if (session.shownProduct) {
-    return {
-      reply: `Puedo ayudarte con eso.
-
-Si querés, avanzamos con la opción recomendada o te muestro una alternativa más económica.`,
-      actions: [
-        { label: "Comprar ahora", value: "comprar_ahora" },
-        { label: "Ver opción más económica", value: "ver_mas_barata" },
-        { label: "Hablar con asesor", value: "hablar_con_asesor" },
-      ],
-    };
-  }
-
-  return {
-    reply: `Contame qué estás buscando y te ayudo a elegir la mejor opción.`,
-  };
-}
-
-/**
- * Optional endpoint to preload the demo.
- * Useful for landing-page controlled demo flows.
- */
-app.get("/demo-start", (req, res) => {
+// Demo start — preloads category so landing page can trigger it
+app.get("/demo-start", async (req, res) => {
   const userId = getUserId(req);
   const session = resetSession(userId);
+  const { products } = await loadStoreData(STORE);
 
-  session.category = "campera";
+  session.category = detectCategory("campera", products) || "campera";
   session.stage = "asking_gender";
 
-  return res.json({
-    reply: `Hola 👋
-
-Soy el sistema de ventas.
-
-Te ayudo a encontrar la mejor opción y llevarte a compra.
-
-Veo que estás buscando una campera.
-¿La buscás para hombre o mujer?`,
+  res.json({
+    reply: `Hola 👋\n\nSoy el sistema de ventas.\n\nTe ayudo a encontrar la mejor opción y llevarte a compra.\n\nVeo que estás buscando una ${session.category}.\n¿La buscás para hombre o mujer?`,
     actions: [
       { label: "Hombre", value: "hombre" },
       { label: "Mujer", value: "mujer" },
@@ -525,192 +232,102 @@ app.post("/chat", async (req, res) => {
     const message = String(rawMessage).trim();
     const msg = normalize(message);
     const userId = getUserId(req);
-    const session = getSession(userId);
 
-    if (!msg) {
-      return res.json({
-        reply: `Contame qué estás buscando 👌`,
-      });
-    }
+    if (!msg) return res.json({ reply: "Contame qué estás buscando 👌" });
 
-    // Reset / greeting
+    // Load store data (cached)
+    const { products, policies } = await loadStoreData(STORE);
+
+    // ── Reset / greeting ─────────────────────────────────────────────────
     if (isGreeting(msg)) {
       resetSession(userId);
       return res.json({
-        reply: `Hola 👋
-
-Soy el sistema de ventas.
-
-Te ayudo a encontrar productos, resolver dudas y avanzar a compra.
-
-¿Qué estás buscando hoy?`,
+        reply: `Hola 👋\n\nSoy el sistema de ventas.\n\nTe ayudo a encontrar productos, resolver dudas y avanzar a compra.\n\n¿Qué estás buscando hoy?`,
       });
     }
 
-    // Button/value mappings for controlled demo UX
-    if (msg === "hombre") {
-      session.gender = "hombre";
-    }
-    if (msg === "mujer") {
-      session.gender = "mujer";
-    }
-    if (msg === "frio_intenso" || msg === "frio") {
-      session.weatherNeed = "frio";
-    }
-    if (msg === "liviana" || msg === "liviano") {
-      session.weatherNeed = "liviano";
-    }
+    const session = getSession(userId);
 
-    // Detect product category and qualifiers
-    const detectedCategory = detectCategory(msg);
+    // ── Extract signals from message ─────────────────────────────────────
     const detectedGender = detectGender(msg);
-    const detectedWeatherNeed = detectWeatherNeed(msg);
+    const detectedCategory = detectCategory(msg, products);
+    const detectedWeather = detectWeatherNeed(msg, products);
+    const detectedPrice = detectPriceSensitivity(msg);
 
-    if (detectedCategory) session.category = detectedCategory;
     if (detectedGender) session.gender = detectedGender;
-    if (detectedWeatherNeed) session.weatherNeed = detectedWeatherNeed;
+    if (detectedCategory) session.category = detectedCategory;
+    if (detectedWeather) session.weatherNeed = detectedWeather;
+    if (detectedPrice) session.priceTier = detectedPrice;
 
-    // Human handoff
+    // Accumulate raw context for matcher
+    session.rawQuery = session.rawQuery ? session.rawQuery + " " + msg : msg;
+
+    // ── Button value shortcuts (from frontend action buttons) ────────────
+    if (msg === "hombre") { session.gender = "hombre"; }
+    if (msg === "mujer") { session.gender = "mujer"; }
+    if (msg === "frio_intenso") { session.weatherNeed = "frio"; }
+    if (msg === "liviana" || msg === "liviano") { session.weatherNeed = "liviano"; }
+
+    // ── Human handoff ────────────────────────────────────────────────────
     if (detectHumanIntent(msg) || msg === "hablar_con_asesor") {
       session.stage = "closing";
       return res.json({
-        reply: `Perfecto 👌
-
-Te paso con un asesor para finalizar la compra y confirmar stock.
-
-En un momento te contactan 👍`,
-        actions: [
-          { label: "Volver a la recomendación", value: "volver_recomendacion" },
-        ],
+        reply: `Perfecto 👌\n\nTe paso con un asesor para finalizar la compra y confirmar stock.\n\nEn un momento te contactan 👍`,
+        actions: [{ label: "Volver a la recomendación", value: "volver_recomendacion" }],
       });
     }
 
-    // Buy intent
-    if (
-      detectBuyIntent(msg) ||
-      msg === "comprar_ahora" ||
-      msg === "comprar_recomendada"
-    ) {
-      const product = session.shownProduct || getProduct(session);
+    // ── Policy / FAQ ─────────────────────────────────────────────────────
+    const policyIntent = detectPolicyIntent(msg);
+    if (policyIntent || msg === "tengo_una_duda") {
+      const intent = policyIntent || "shipping";
+      return res.json(buildPolicyReply(intent, policies, session));
+    }
 
+    // ── Buy intent ───────────────────────────────────────────────────────
+    if (detectBuyIntent(msg) || msg === "comprar_recomendada") {
+      const product = session.shownProduct;
       if (product) {
         session.stage = "closing";
-        return res.json({
-          reply: `Perfecto 👌
-
-Te llevo directo a compra:
-
-${product.name}
-${formatCurrency(product.price, product.currency)}
-
-${product.url}`,
-          product: {
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            currency: product.currency,
-            url: product.url,
-            image: product.image,
-          },
-          actions: [
-            { label: "Hablar con asesor", value: "hablar_con_asesor" },
-          ],
-        });
+        return res.json(buildClosingReply(product));
       }
-
-      return res.json({
-        reply: `Perfecto 👌
-
-Antes de avanzar, decime qué producto estás buscando y te recomiendo la mejor opción.`,
-      });
+      return res.json({ reply: `Antes de comprar, decime qué estás buscando y te recomiendo la mejor opción 👌` });
     }
 
-    // Buy alt product
     if (msg === "comprar_alt") {
-      const altProduct = session.shownAltProduct;
-
-      if (altProduct) {
+      const product = session.shownAltProduct;
+      if (product) {
         session.stage = "closing";
-        return res.json({
-          reply: `Perfecto 👌
-
-Te llevo directo a compra:
-
-${altProduct.name}
-${formatCurrency(altProduct.price, altProduct.currency)}
-
-${altProduct.url}`,
-          product: {
-            id: altProduct.id,
-            name: altProduct.name,
-            price: altProduct.price,
-            currency: altProduct.currency,
-            url: altProduct.url,
-            image: altProduct.image,
-          },
-          actions: [
-            { label: "Hablar con asesor", value: "hablar_con_asesor" },
-          ],
-        });
+        return res.json(buildClosingReply(product));
       }
     }
 
-    // Support / FAQ
-    if (detectSupportIntent(msg) || msg === "tengo_una_duda") {
-      return res.json(faqReply(session));
-    }
-
-    // Unsure
-    if (detectUnsure(msg)) {
-      if (session.category === "campera" && !session.weatherNeed) {
-        return res.json({
-          reply: `No hay problema 👌
-
-Te ayudo a elegir.
-
-¿La necesitás para frío intenso o algo más liviano?`,
-          actions: [
-            { label: "Frío intenso", value: "frio_intenso" },
-            { label: "Más liviana", value: "liviana" },
-          ],
-        });
-      }
-
-      return res.json({
-        reply: `No pasa nada 👌
-
-Contame qué uso le querés dar y te recomiendo la mejor opción.`,
-      });
-    }
-
-    // Price objection
+    // ── Price objection ──────────────────────────────────────────────────
     if (detectPriceObjection(msg) || msg === "ver_mas_barata") {
-      const product = session.shownProduct || getProduct(session);
-
-      if (product?.alt) {
-        session.shownAltProduct = product.alt;
-        session.stage = "alt_product_shown";
-        return res.json(altProductReply(product.alt, product));
+      session.priceTier = "low";
+      const primary = session.shownProduct;
+      if (primary) {
+        const alt = matchAltProduct(products, session, primary);
+        if (alt) {
+          session.shownAltProduct = alt;
+          session.stage = "alt_shown";
+          return res.json(buildAltProductReply(alt, primary));
+        }
       }
-
       return res.json({
-        reply: `Entiendo 👌
-
-Si querés, te ayudo a encontrar la opción con mejor relación precio/uso.`,
+        reply: `Entiendo 👌 Por el momento esta es nuestra mejor opción en ese rango.\n\n¿Querés que te pase con un asesor para ver si hay algo más?`,
+        actions: [{ label: "Hablar con asesor", value: "hablar_con_asesor" }],
       });
     }
 
-    // Style objection / another option
-    if (detectStyleObjection(msg) || msg === "otra_opcion") {
+    // ── Style objection / another option ─────────────────────────────────
+    if (detectStyleObjection(msg) || detectCorrection(msg) || msg === "otra_opcion") {
       session.weatherNeed = null;
       session.shownProduct = null;
       session.shownAltProduct = null;
-      session.stage = "asking_weather_need";
-
+      session.stage = "asking_weather";
       return res.json({
-        reply: `Perfecto, lo ajustamos 👌
-
-¿Querés algo para frío intenso o una opción más liviana?`,
+        reply: `Perfecto, lo ajustamos 👌\n\n¿Querés algo para frío intenso o una opción más liviana?`,
         actions: [
           { label: "Frío intenso", value: "frio_intenso" },
           { label: "Más liviana", value: "liviana" },
@@ -718,43 +335,27 @@ Si querés, te ayudo a encontrar la opción con mejor relación precio/uso.`,
       });
     }
 
-    // Correction handling
-    if (detectCorrection(msg)) {
-      session.weatherNeed = null;
-      session.shownProduct = null;
-      session.shownAltProduct = null;
-      session.stage = "asking_weather_need";
+    // ── Guided flow ───────────────────────────────────────────────────────
 
-      return res.json({
-        reply: `Perfecto, lo ajustamos 👌
-
-¿Buscás algo para frío intenso o algo más liviano?`,
-        actions: [
-          { label: "Frío intenso", value: "frio_intenso" },
-          { label: "Más liviana", value: "liviana" },
-        ],
-      });
-    }
-
-    // Guided sales flow: category
+    // No category → try to detect or ask
     if (!session.category) {
-      const justDetectedCategory = detectCategory(msg);
-      if (justDetectedCategory) {
-        session.category = justDetectedCategory;
-      } else {
-        return res.json({
-          reply: `Bien 👌
-
-¿Qué estás buscando hoy? Por ejemplo: una campera para invierno.`,
-        });
+      const earlyMatch = matchProduct(products, session);
+      if (earlyMatch) {
+        session.category = normalize(earlyMatch.category);
+        const alt = matchAltProduct(products, session, earlyMatch);
+        session.shownProduct = earlyMatch;
+        session.shownAltProduct = alt || null;
+        session.stage = "product_shown";
+        return res.json(buildProductReply(earlyMatch, alt));
       }
+      return res.json({ reply: `¿Qué estás buscando hoy? Podés decirme el tipo de prenda, para quién es, o el uso que le querés dar 👌` });
     }
 
-    // Guided sales flow: gender
-    if (session.category === "campera" && !session.gender) {
+    // Category known, no gender → ask
+    if (!session.gender) {
       session.stage = "asking_gender";
       return res.json({
-        reply: `Bien 👌 ¿La buscás para hombre o mujer?`,
+        reply: `Bien 👌 ¿Lo buscás para hombre o mujer?`,
         actions: [
           { label: "Hombre", value: "hombre" },
           { label: "Mujer", value: "mujer" },
@@ -762,11 +363,11 @@ Si querés, te ayudo a encontrar la opción con mejor relación precio/uso.`,
       });
     }
 
-    // Guided sales flow: weather need
-    if (session.category === "campera" && !session.weatherNeed) {
-      session.stage = "asking_weather_need";
+    // Gender known, no weather need → ask
+    if (!session.weatherNeed) {
+      session.stage = "asking_weather";
       return res.json({
-        reply: `Perfecto 👍 ¿La querés para frío intenso o algo más liviano?`,
+        reply: `Perfecto 👍 ¿Lo querés para frío intenso o algo más liviano?`,
         actions: [
           { label: "Frío intenso", value: "frio_intenso" },
           { label: "Más liviana", value: "liviana" },
@@ -774,29 +375,34 @@ Si querés, te ayudo a encontrar la opción con mejor relación precio/uso.`,
       });
     }
 
-    // Show main product
-    const product = getProduct(session);
-    if (product) {
-      session.shownProduct = product;
-      session.shownAltProduct = product.alt || null;
-      session.stage = "product_shown";
+    // All signals → match and recommend
+    const product = matchProduct(products, session);
 
-      return res.json(productReply(product));
+    if (!product) {
+      return res.json({
+        reply: `No encontré una opción que encaje exactamente. ¿Querés que te pase con un asesor?`,
+        actions: [{ label: "Hablar con asesor", value: "hablar_con_asesor" }],
+      });
     }
 
-    // Safe fallback
-    return res.json(fallbackReply(session));
+    const alt = matchAltProduct(products, session, product);
+    session.shownProduct = product;
+    session.shownAltProduct = alt || null;
+    session.stage = "product_shown";
+
+    return res.json(buildProductReply(product, alt));
+
   } catch (error) {
-    console.error("Chat error:", error);
+    console.error("[chatbot] Error:", error.message);
     return res.status(500).json({
-      reply: `Hubo un error. Si querés, te paso con un asesor.`,
-      actions: [
-        { label: "Hablar con asesor", value: "hablar_con_asesor" },
-      ],
+      reply: `Hubo un error. ¿Querés que te pase con un asesor?`,
+      actions: [{ label: "Hablar con asesor", value: "hablar_con_asesor" }],
     });
   }
 });
 
+// ─── Start ────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`[server] Running → http://localhost:${PORT}`);
+  console.log(`[server] Store: ${STORE}`);
 });
