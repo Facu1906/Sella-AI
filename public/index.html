@@ -1,148 +1,218 @@
-<link rel="stylesheet" href="./index.css">
-
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Turn WhatsApp into a Sales Channel</title>
+  <title>Sella — AI Sales Agent</title>
+  <meta name="description" content="AI agent that converts WhatsApp conversations into sales. Built for e-commerce." />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://whatsapp-sales.vercel.app/" />
+  <meta property="og:title"       content="Sella — AI Sales Agent" />
+  <meta property="og:description" content="AI agent that converts WhatsApp conversations into sales. Built for e-commerce." />
+  <meta property="og:image"       content="https://whatsapp-sales.vercel.app/og-image.png" />
+
+  <!-- Twitter / X Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:site"        content="@sella_app" />
+  <meta name="twitter:title"       content="Sella — AI Sales Agent" />
+  <meta name="twitter:description" content="AI agent that converts WhatsApp conversations into sales. Built for e-commerce." />
+  <meta name="twitter:image"       content="https://whatsapp-sales.vercel.app/og-image.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./index.css">
 </head>
 <body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="nav-logo" href="/">
+        <svg class="logo-mark" width="34" height="34" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 7C2 4.24 4.24 2 7 2H29C31.76 2 34 4.24 34 7V23C34 25.76 31.76 28 29 28H13L4 37V28C2.9 28 2 27.1 2 26V7Z" fill="url(#navG)"/>
+          <path d="M11 15L16 20L23 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="45" cy="9"  r="8.5" fill="#7c8cff"/>
+          <circle cx="45" cy="26" r="7"   fill="#5452b8"/>
+          <circle cx="45" cy="41" r="5.5" fill="#221e54"/>
+          <defs>
+            <linearGradient id="navG" x1="2" y1="2" x2="34" y2="37" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#7c5cfc"/>
+              <stop offset="1" stop-color="#5a40d8"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="logo-name">Sella</span>
+      </a>
+      <a class="nav-cta" href="https://calendly.com/facundofn1906/30min" target="_blank" rel="noopener">Book a call</a>
+    </div>
+  </nav>
+
   <div class="container">
 
-   <section class="hero">
-  <div class="eyebrow">WhatsApp Sales System</div>
-  <h1>Convert high-intent chats into <span class="highlight">purchases</span></h1>
-  <p class="sub">
-    Most brands already have customers asking what to buy — they just don’t convert them.
-    We guide those conversations to the right product and push them to checkout automatically.
-  </p>
+    <section class="hero">
+      <div class="eyebrow">AI Sales Agent</div>
+      <h1>Convert high-intent chats into <span class="highlight">purchases</span></h1>
+      <p class="sub">
+        Most brands already have customers asking what to buy — they just don't convert them.
+        We guide those conversations to the right product and push them to checkout automatically.
+      </p>
+      <div class="cta-row">
+        <a class="btn" href="./demo.html" target="_blank">Try demo (60s)</a>
+        <a class="btn secondary" href="#demo">See how it converts</a>
+      </div>
+      <p class="small-note">Built from real e-commerce WhatsApp conversations.</p>
+    </section>
 
-  <div class="cta-row">
-    <a class="btn" href="#demo">See how it converts a real customer</a>
-    <a class="btn secondary" href="./demo.html" target="_blank">Try demo (60s)</a>
-  </div>
-  <p class="small-note">Built from real e-commerce WhatsApp conversations.</p>
-</section>
+    <section class="section">
+      <h2>Where you're losing sales</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>What happens</h3>
+          <ul>
+            <li>Customer asks for a product — gets a category link</li>
+            <li>Customer hesitates — no follow-up</li>
+            <li>Customer says "not that one" — the flow breaks</li>
+            <li>The conversation depends on manual replies</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>What it causes</h3>
+          <ul>
+            <li>High-intent customers drop before buying</li>
+            <li>Wrong or generic recommendations</li>
+            <li>No clear path to purchase</li>
+            <li>Lost revenue from traffic you already paid for</li>
+          </ul>
+        </div>
+      </div>
+    </section>
 
-<section class="section">
-  <h2>Where you’re losing sales</h2>
-
-  <div class="grid">
-    <div class="card">
-      <h3>What happens</h3>
+    <section class="section">
+      <h2>What this does for your store</h2>
       <ul>
-        <li>Customer asks for a product → gets a category link</li>
-        <li>Customer hesitates → no follow-up</li>
-        <li>Customer says “not that one” → the flow breaks</li>
-        <li>The conversation depends on manual replies</li>
+        <li>Converts more WhatsApp and website chats into purchases</li>
+        <li>Recommends exact products instead of generic categories</li>
+        <li>Keeps the conversation moving until checkout</li>
+        <li>Handles objections like price, sizing, and shipping without killing momentum</li>
       </ul>
-    </div>
-    <div class="card">
-      <h3>What it causes</h3>
+      <p><strong>Even a small increase in chat conversion = immediate revenue from traffic you already paid for.</strong></p>
+    </section>
+
+    <section class="section">
+      <h2>How it works</h2>
       <ul>
-        <li>High-intent customers drop before buying</li>
-        <li>Wrong or generic recommendations</li>
-        <li>No clear path to purchase</li>
-        <li>Lost revenue from traffic you already paid for</li>
+        <li>Customer asks for a product</li>
+        <li>The sales system asks 1–2 quick questions</li>
+        <li>It recommends 2–3 specific products</li>
+        <li>It handles objections</li>
+        <li>It pushes the customer to checkout</li>
       </ul>
+      <p><strong>Built to close — not to chat.</strong></p>
+    </section>
+
+    <section class="section" id="demo">
+      <h2>Live Example</h2>
+      <p>
+        This is exactly how a customer goes from "I'm looking for a jacket" → checkout.
+      </p>
+      <div class="phone-mockup">
+        <div class="phone-shell">
+          <div class="phone-island"></div>
+          <div class="phone-screen">
+            <iframe src="./demo.html" title="Live demo" scrolling="no"></iframe>
+          </div>
+          <div class="phone-home"></div>
+        </div>
+      </div>
+      <div class="cta-row" style="margin-top:20px;">
+        <a class="btn secondary" href="./demo.html" target="_blank">Try the conversation (60s)</a>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>What we focus on</h2>
+      <p><strong>We focus on one thing only:</strong></p>
+      <p>High-intent customers who are already asking about products.</p>
+      <p>
+        We don't replace your support team.
+        We convert the conversations that should already be sales.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Before vs After</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Before</h3>
+          <ul>
+            <li>Slow or manual replies</li>
+            <li>Generic or wrong recommendations</li>
+            <li>No clear buying path</li>
+            <li>Customers drop off</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>After</h3>
+          <ul>
+            <li>Instant responses</li>
+            <li>Clear product recommendations</li>
+            <li>Guided buying flow</li>
+            <li>More conversions from chat</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section footer-cta">
+      <h2>See this on your store</h2>
+      <p>
+        I'll show you how this would work with your products and your current chat flow in 10 minutes.
+        If you're getting messages but not enough purchases from them, this is where the leak is.
+      </p>
+      <p><strong>If it doesn't clearly increase your conversion from chat, you don't move forward.</strong></p>
+      <div class="cta-row" style="justify-content:center;">
+        <a class="btn" href="https://calendly.com/facundofn1906/30min" target="_blank" rel="noopener">Book a call</a>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <a class="footer-logo" href="/">
+        <svg width="26" height="26" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 7C2 4.24 4.24 2 7 2H29C31.76 2 34 4.24 34 7V23C34 25.76 31.76 28 29 28H13L4 37V28C2.9 28 2 27.1 2 26V7Z" fill="url(#footG)"/>
+          <path d="M11 15L16 20L23 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="45" cy="9"  r="8.5" fill="#7c8cff"/>
+          <circle cx="45" cy="26" r="7"   fill="#5452b8"/>
+          <circle cx="45" cy="41" r="5.5" fill="#221e54"/>
+          <defs>
+            <linearGradient id="footG" x1="2" y1="2" x2="34" y2="37" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#7c5cfc"/>
+              <stop offset="1" stop-color="#5a40d8"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="footer-logo-name">Sella</span>
+      </a>
+
+      <p class="footer-tagline">Convert. Close. Repeat.</p>
+
+      <div class="footer-links">
+        <a class="footer-link" href="https://x.com/sella_app" target="_blank" rel="noopener" aria-label="X / Twitter">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.402 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.91-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          @sella_app
+        </a>
+        <a class="footer-link" href="https://linkedin.com/company/sella-ai" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </a>
+      </div>
     </div>
-  </div>
-</section>
+  </footer>
 
-<section class="section">
-  <h2>What this does for your store</h2>
-  <ul>
-    <li>Converts more WhatsApp and website chats into purchases</li>
-    <li>Recommends exact products instead of generic categories</li>
-    <li>Keeps the conversation moving until checkout</li>
-    <li>Handles objections like price, sizing, and shipping without killing momentum</li>
-  </ul>
-  <p><strong>Even a small increase in chat conversion = immediate revenue from traffic you already paid for.</strong></p>
-</section>
-
-<section class="section">
-  <h2>How it works</h2>
-  <ul>
-    <li>Customer asks for a product</li>
-    <li>The sales system asks 1–2 quick questions</li>
-    <li>It recommends 2–3 specific products</li>
-    <li>It handles objections</li>
-    <li>It pushes the customer to checkout</li>
-  </ul>
-  <p><strong>Built to close — not to chat.</strong></p>
-</section>
-
-<section class="section" id="demo">
-  <h2>Live Example</h2>
-  <p>
-    This is exactly how a customer goes from “I’m looking for a jacket” → checkout.
-  </p>
-
-  <div class="demo-box">
-    <iframe src="./demo.html" title="Live demo" loading="lazy"></iframe>
-  </div>
-
-  <div class="cta-row" style="margin-top:20px;">
-    <a class="btn secondary" href="./demo.html" target="_blank">Try the conversation (60s)</a>
-  </div>
-</section>
-
-<section class="section">
-  <h2>What we focus on</h2>
-  <p><strong>We focus on one thing only:</strong></p>
-  <p>High-intent customers who are already asking about products.</p>
-  <p>
-    We don’t replace your support team.
-    We convert the conversations that should already be sales.
-  </p>
-</section>
-
-<section class="section">
-  <h2>Before vs After</h2>
-  <div class="grid">
-    <div class="card">
-      <h3>Before</h3>
-      <ul>
-        <li>Slow or manual replies</li>
-        <li>Generic or wrong recommendations</li>
-        <li>No clear buying path</li>
-        <li>Customers drop off</li>
-      </ul>
-    </div>
-    <div class="card">
-      <h3>After</h3>
-      <ul>
-        <li>Instant responses</li>
-        <li>Clear product recommendations</li>
-        <li>Guided buying flow</li>
-        <li>More conversions from chat</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <h2>Works on</h2>
-  <ul>
-    <li>WhatsApp</li>
-    <li>Your website chat</li>
-  </ul>
-  <p><strong>Same system. Same goal: turn conversations into purchases.</strong></p>
-</section>
-
-<section class="section footer-cta">
-  <h2>See this on your store</h2>
-  <p>
-    I’ll show you how this would work with your products and your current chat flow in 10 minutes.
-    If you’re getting messages but not enough purchases from them, this is where the leak is.
-  </p>
-  <p><strong>If it doesn’t clearly increase your conversion from chat, you don’t move forward.</strong></p>
-  <div class="cta-row" style="justify-content:center;">
-    <a class="btn" href="mailto:facundofn1906@gmail.com?subject=WhatsApp Sales System">Book a call</a>
-  </div>
-</section>
-
-  </div>
 </body>
 </html>

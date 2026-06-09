@@ -428,7 +428,12 @@ app.post("/chat", async (req, res) => {
 });
 
 // ─── Start ────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`[server] Running → http://localhost:${PORT}`);
-  console.log(`[server] Store: ${STORE}`);
-});
+// Export for Vercel serverless — app.listen() is only for local dev
+export default app;
+
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`[server] Running → http://localhost:${PORT}`);
+    console.log(`[server] Store: ${STORE}`);
+  });
+}
