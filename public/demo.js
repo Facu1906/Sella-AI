@@ -187,7 +187,7 @@ async function sendToServer(message) {
   const typingRow = appendMessage("Escribiendo...", "bot", "typing");
 
   try {
-    const response = await fetch("/chat", {
+    const response = await fetch("https://sella-agent.onrender.com/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message }),
