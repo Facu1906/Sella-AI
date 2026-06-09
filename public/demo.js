@@ -243,4 +243,4 @@ function startDemo() {
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-setTimeout(() => startDemo(), 500);
+// setTimeout(() => startDemo(), 500);
