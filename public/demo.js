@@ -242,5 +242,87 @@ function startDemo() {
   sendToServer(opening);
 }
 
+// ─── Language (follows the landing page EN/ES toggle) ──────────────────────────
+// Only static UI strings + starter buttons are translated here. The conversation
+// logic and the agent's replies are untouched (those come from the server).
+// Rioplatense Spanish (voseo), matching the rest of the site.
+const DEMO_I18N = {
+  en: {
+    subtitle: "Guided e-commerce demo",
+    emptyTitle: "How can I help?",
+    emptyText:
+      "This demo shows how a store turns a buying-intent question into a concrete recommendation and guides the customer to checkout.",
+    chip1: { label: "I want a winter jacket", value: "I want a winter jacket" },
+    chip2: { label: "Do you ship?", value: "Do you ship?" },
+    placeholder: "Type as a customer...",
+    send: "Send",
+  },
+  es: {
+    subtitle: "Demo guiada de e-commerce",
+    emptyTitle: "¿En qué te ayudo?",
+    emptyText:
+      "Esta demo muestra cómo una tienda convierte una consulta con intención de compra en una recomendación concreta y guía al cliente hasta el checkout.",
+    chip1: { label: "Quiero una campera de invierno", value: "Quiero una campera de invierno" },
+    chip2: { label: "¿Hacés envíos?", value: "¿Hacés envíos?" },
+    placeholder: "Escribí como cliente...",
+    send: "Enviar",
+  },
+};
+
+let demoLang = "en";
+
+function getInitialDemoLang() {
+  try {
+    const q = new URLSearchParams(window.location.search).get("lang");
+    if (q === "en" || q === "es") return q;
+  } catch (e) {}
+  return "en";
+}
+
+function applyDemoLang(lang) {
+  if (lang !== "en" && lang !== "es") lang = "en";
+  demoLang = lang;
+  const t = DEMO_I18N[lang];
+  document.documentElement.lang = lang;
+
+  // Header subtitle (preserve the live-dot)
+  const subtitle = document.querySelector(".header-subtitle");
+  if (subtitle) subtitle.innerHTML = '<span class="dot"></span>\n          ' + t.subtitle;
+
+  // Empty state (only present before the conversation starts)
+  const h2 = document.querySelector("#emptyState h2");
+  if (h2) h2.textContent = t.emptyTitle;
+  const p = document.querySelector("#emptyState p");
+  if (p) p.textContent = t.emptyText;
+
+  // Starter buttons — translate the label AND what they send
+  const chips = document.querySelectorAll("#emptyState .chip");
+  if (chips[0]) {
+    chips[0].textContent = t.chip1.label;
+    chips[0].onclick = function () { sendPreset(t.chip1.value); };
+  }
+  if (chips[1]) {
+    chips[1].textContent = t.chip2.label;
+    chips[1].onclick = function () { sendPreset(t.chip2.value); };
+  }
+
+  // Input placeholder + send button
+  const input = document.getElementById("input");
+  if (input) input.placeholder = t.placeholder;
+  const sendBtn = document.querySelector(".send-btn");
+  if (sendBtn) sendBtn.textContent = t.send;
+}
+
+// Respond to the landing page toggle (separate document → postMessage)
+window.addEventListener("message", function (e) {
+  const data = e.data;
+  if (data && data.type === "sella-lang" && (data.lang === "en" || data.lang === "es")) {
+    applyDemoLang(data.lang);
+  }
+});
+
+// Read the language on load (query param when opened directly), default English
+applyDemoLang(getInitialDemoLang());
+
 // ─── Init ─────────────────────────────────────────────────────────────────────
 // setTimeout(() => startDemo(), 500);

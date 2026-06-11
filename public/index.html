@@ -104,7 +104,7 @@
         <div class="phone-shell">
           <div class="phone-island"></div>
           <div class="phone-screen">
-            <iframe src="./demo.html" title="Live demo" scrolling="no"></iframe>
+            <iframe id="demoFrame" src="./demo.html" title="Live demo" scrolling="no"></iframe>
           </div>
           <div class="phone-home"></div>
         </div>
@@ -284,9 +284,19 @@
       };
 
       var STORAGE_KEY = "sella_lang";
+      var currentLang = "en";
+
+      // Push the chosen language into the demo iframe (separate document).
+      function syncDemoLang(lang) {
+        var f = document.getElementById("demoFrame");
+        if (f && f.contentWindow) {
+          f.contentWindow.postMessage({ type: "sella-lang", lang: lang }, "*");
+        }
+      }
 
       function apply(lang) {
         if (lang !== "en" && lang !== "es") lang = "en";
+        currentLang = lang;
         document.documentElement.lang = lang;
 
         var nodes = document.querySelectorAll("[data-i18n]");
@@ -307,6 +317,8 @@
           opts[j].setAttribute("aria-pressed", isActive ? "true" : "false");
         }
 
+        syncDemoLang(lang);
+
         try { localStorage.setItem(STORAGE_KEY, lang); } catch (e) {}
       }
 
@@ -316,6 +328,17 @@
         var s = localStorage.getItem(STORAGE_KEY);
         if (s === "en" || s === "es") saved = s;
       } catch (e) {}
+
+      // Initial load: serve the demo in the saved language with no flash.
+      // For ES, add ?lang=es so the iframe reads it on first paint; EN is the
+      // static default (no reload). Re-sync via postMessage once it loads.
+      var demoFrame = document.getElementById("demoFrame");
+      if (demoFrame) {
+        if (saved === "es") demoFrame.src = "./demo.html?lang=es";
+        demoFrame.addEventListener("load", function () {
+          syncDemoLang(currentLang);
+        });
+      }
 
       var opts = document.querySelectorAll(".lang-opt");
       for (var k = 0; k < opts.length; k++) {
