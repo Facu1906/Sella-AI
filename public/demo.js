@@ -182,32 +182,83 @@ function appendCompareCards(products = []) {
 }
 
 // ─── Server communication ─────────────────────────────────────────────────────
-// Single function for all server calls — free text AND button values.
+const AGENT_URL = "https://sella-agent.onrender.com/chat";
+
+// Animated "typing" bubble (three pulsing dots) shown until the first token.
+function appendTyping() {
+  clearEmptyState();
+  const messages = document.getElementById("messages");
+  const row = document.createElement("div");
+  row.className = "message-row bot-row";
+  const bubble = document.createElement("div");
+  bubble.className = "msg bot typing";
+  bubble.innerHTML =
+    '<span class="typing-dots" aria-label="…"><span></span><span></span><span></span></span>';
+  row.appendChild(bubble);
+  messages.appendChild(row);
+  scrollToBottom();
+  return row;
+}
+
+// Empty bot bubble we stream tokens into.
+function startBotBubble() {
+  const row = appendMessage("", "bot");
+  return row.querySelector(".msg");
+}
+
+function errorText() {
+  return demoLang === "es"
+    ? "Error conectando con el servidor. Intentá de nuevo 👌"
+    : "Couldn't reach the server. Please try again 👌";
+}
+
+// Streams the reply token by token so the first words appear almost immediately.
 async function sendToServer(message) {
-  const typingRow = appendMessage("Escribiendo...", "bot", "typing");
+  const typingRow = appendTyping();
 
   try {
-    const response = await fetch("https://sella-agent.onrender.com/chat", {
+    const response = await fetch(AGENT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message, lang: demoLang }),
     });
 
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    typingRow.remove();
+    if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);
 
-    setTimeout(() => {
-      if (data.reply)    appendMessage(data.reply, "bot");
-      if (data.product)  appendProductCard(data.product, data.productCtaText || "Ir a checkout");
-      if (data.products) appendCompareCards(data.products);
-      if (data.actions)  appendActions(data.actions);
-    }, 250);
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let full = "";
+    let bubble = null;
 
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      if (!chunk) continue;
+      full += chunk;
+      if (!bubble) {
+        typingRow.remove();          // swap the dots for the real bubble on first token
+        bubble = startBotBubble();
+      }
+      bubble.textContent = full;
+      scrollToBottom();
+    }
+    full += decoder.decode();        // flush any trailing bytes
+
+    if (!bubble) {
+      // Server replied without a streamed body (e.g. a JSON error) — handle gracefully.
+      typingRow.remove();
+      let msg = full;
+      try { const j = JSON.parse(full); if (j && j.reply) msg = j.reply; } catch (e) {}
+      appendMessage(msg || errorText(), "bot");
+    } else {
+      bubble.textContent = full;
+      scrollToBottom();
+    }
   } catch (err) {
     console.error("[demo] Server error:", err);
     typingRow.remove();
-    appendMessage("Error conectando con el servidor. Intentá de nuevo 👌", "bot");
+    appendMessage(errorText(), "bot");
   }
 }
 
