@@ -184,6 +184,11 @@ function appendCompareCards(products = []) {
 // ─── Server communication ─────────────────────────────────────────────────────
 const AGENT_URL = "https://sella-agent.onrender.com/chat";
 
+// Full conversation history sent with every request so the agent keeps context
+// across turns (it was previously stateless — only the latest message was sent,
+// which made it re-greet and re-ask). Roles: "user" | "assistant".
+const chatHistory = [];
+
 // Animated "typing" bubble (three pulsing dots) shown until the first token.
 function appendTyping() {
   clearEmptyState();
@@ -216,11 +221,16 @@ function errorText() {
 async function sendToServer(message) {
   const typingRow = appendTyping();
 
+  // Send the whole conversation (history + this new user turn) so the agent has
+  // full context. Only commit the turns to history once the reply succeeds, so a
+  // failed request doesn't leave a dangling user turn.
+  const outgoing = chatHistory.concat([{ role: "user", content: message }]);
+
   try {
     const response = await fetch(AGENT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message, lang: demoLang }),
+      body: JSON.stringify({ messages: outgoing, lang: demoLang }),
     });
 
     if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);
@@ -254,6 +264,9 @@ async function sendToServer(message) {
     } else {
       bubble.textContent = full;
       scrollToBottom();
+      // Record both turns now that we have a real reply.
+      chatHistory.push({ role: "user", content: message });
+      chatHistory.push({ role: "assistant", content: full });
     }
   } catch (err) {
     console.error("[demo] Server error:", err);
