@@ -211,6 +211,12 @@ function startBotBubble() {
   return row.querySelector(".msg");
 }
 
+function linkify(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener" class="chat-link">$1</a>');
+}
+
 function errorText() {
   return demoLang === "es"
     ? "Error conectando con el servidor. Intentá de nuevo 👌"
@@ -262,7 +268,7 @@ async function sendToServer(message) {
       try { const j = JSON.parse(full); if (j && j.reply) msg = j.reply; } catch (e) {}
       appendMessage(msg || errorText(), "bot");
     } else {
-      bubble.textContent = full;
+      bubble.innerHTML = linkify(full);
       scrollToBottom();
       // Record both turns now that we have a real reply.
       chatHistory.push({ role: "user", content: message });

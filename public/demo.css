@@ -243,6 +243,8 @@
       color: var(--muted);
     }
 
+    .msg a.chat-link { color: #c4b5fd; text-decoration: underline; word-break: break-all; }
+
     /* Animated typing indicator — three dots pulsing in sequence */
     .typing-dots {
       display: inline-flex;
