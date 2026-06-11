@@ -24,6 +24,49 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── Language toggle ─────────────────────────────────────────────── */
+.lang-toggle {
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  z-index: 200;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(20, 17, 38, 0.72);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.4);
+}
+
+.lang-opt {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(240, 242, 248, 0.5);
+  padding: 2px 5px;
+  border-radius: 8px;
+  transition: color 0.18s ease;
+}
+
+.lang-opt:hover { color: var(--text); }
+
+.lang-opt.active { color: rgba(185, 168, 255, 0.95); }
+
+.lang-sep {
+  color: rgba(255, 255, 255, 0.22);
+  font-size: 12px;
+  font-weight: 600;
+  user-select: none;
+}
+
 /* ─── Nav ─────────────────────────────────────────────────────────── */
 .nav {
   position: sticky;
@@ -40,6 +83,8 @@ body {
   max-width: 1080px;
   margin: 0 auto;
   padding: 16px 0;
+  /* keep the nav CTA clear of the fixed language toggle on every width */
+  padding-right: 84px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -474,11 +519,20 @@ li:last-child { margin-bottom: 0; }
   .grid       { grid-template-columns: 1fr; }
   .btn        { width: 100%; text-align: center; justify-content: center; }
   .cta-row    { flex-direction: column; }
-  .nav-inner  { padding: 14px 0; }
+  .nav-inner  { padding: 14px 0; padding-right: 92px; }
   .footer-inner {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
   }
   .footer-tagline { order: 3; }
+}
+
+/* ─── Very small screens: keep nav CTA + toggle from colliding ─────── */
+@media (max-width: 360px) {
+  .lang-toggle { top: 12px; right: 10px; padding: 4px 8px; }
+  .lang-opt    { font-size: 12px; padding: 2px 4px; }
+  .nav-inner   { padding-right: 74px; }
+  .logo-name   { font-size: 18px; }
+  .nav-cta     { font-size: 12.5px; }
 }

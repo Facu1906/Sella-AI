@@ -28,6 +28,12 @@
 </head>
 <body>
 
+  <div id="langToggle" class="lang-toggle" role="group" aria-label="Language / Idioma">
+    <button type="button" class="lang-opt" data-lang="en">EN</button>
+    <span class="lang-sep" aria-hidden="true">|</span>
+    <button type="button" class="lang-opt" data-lang="es">ES</button>
+  </div>
+
   <nav class="nav">
     <div class="nav-inner">
       <a class="nav-logo" href="/">
@@ -46,76 +52,76 @@
         </svg>
         <span class="logo-name">Sella</span>
       </a>
-      <a class="nav-cta" href="https://calendly.com/facundofn1906/30min" target="_blank" rel="noopener">Book a call</a>
+      <a class="nav-cta" href="https://calendly.com/facundofn1906/30min" target="_blank" rel="noopener" data-i18n="cta_book">Book a call</a>
     </div>
   </nav>
 
   <div class="container">
 
     <section class="hero">
-      <div class="eyebrow">AI Sales Agent</div>
-      <h1>Convert high-intent chats into <span class="highlight">purchases</span></h1>
-      <p class="sub">
+      <div class="eyebrow" data-i18n="hero_eyebrow">AI Sales Agent</div>
+      <h1 data-i18n="hero_h1">Convert high-intent chats into <span class="highlight">purchases</span></h1>
+      <p class="sub" data-i18n="hero_sub">
         Most brands already have customers asking what to buy — they just don't convert them.
         We guide those conversations to the right product and push them to checkout automatically.
       </p>
       <div class="cta-row">
-        <a class="btn" href="./demo.html" target="_blank">Try demo (60s)</a>
-        <a class="btn secondary" href="#demo">See how it converts</a>
+        <a class="btn" href="./demo.html" target="_blank" data-i18n="hero_btn_demo">Try demo (60s)</a>
+        <a class="btn secondary" href="#demo" data-i18n="hero_btn_see">See how it converts</a>
       </div>
-      <p class="small-note">Built from real e-commerce WhatsApp conversations.</p>
+      <p class="small-note" data-i18n="hero_note">Built from real e-commerce WhatsApp conversations.</p>
     </section>
 
     <section class="section">
-      <h2>Where you're losing sales</h2>
+      <h2 data-i18n="s1_h2">Where you're losing sales</h2>
       <div class="grid">
         <div class="card">
-          <h3>What happens</h3>
+          <h3 data-i18n="s1_c1_h3">What happens</h3>
           <ul>
-            <li>Customer asks for a product — gets a category link</li>
-            <li>Customer hesitates — no follow-up</li>
-            <li>Customer says "not that one" — the flow breaks</li>
-            <li>The conversation depends on manual replies</li>
+            <li data-i18n="s1_c1_li1">Customer asks for a product — gets a category link</li>
+            <li data-i18n="s1_c1_li2">Customer hesitates — no follow-up</li>
+            <li data-i18n="s1_c1_li3">Customer says "not that one" — the flow breaks</li>
+            <li data-i18n="s1_c1_li4">The conversation depends on manual replies</li>
           </ul>
         </div>
         <div class="card">
-          <h3>What it causes</h3>
+          <h3 data-i18n="s1_c2_h3">What it causes</h3>
           <ul>
-            <li>High-intent customers drop before buying</li>
-            <li>Wrong or generic recommendations</li>
-            <li>No clear path to purchase</li>
-            <li>Lost revenue from traffic you already paid for</li>
+            <li data-i18n="s1_c2_li1">High-intent customers drop before buying</li>
+            <li data-i18n="s1_c2_li2">Wrong or generic recommendations</li>
+            <li data-i18n="s1_c2_li3">No clear path to purchase</li>
+            <li data-i18n="s1_c2_li4">Lost revenue from traffic you already paid for</li>
           </ul>
         </div>
       </div>
     </section>
 
     <section class="section">
-      <h2>What this does for your store</h2>
+      <h2 data-i18n="s2_h2">What this does for your store</h2>
       <ul>
-        <li>Converts more WhatsApp and website chats into purchases</li>
-        <li>Recommends exact products instead of generic categories</li>
-        <li>Keeps the conversation moving until checkout</li>
-        <li>Handles objections like price, sizing, and shipping without killing momentum</li>
+        <li data-i18n="s2_li1">Converts more WhatsApp and website chats into purchases</li>
+        <li data-i18n="s2_li2">Recommends exact products instead of generic categories</li>
+        <li data-i18n="s2_li3">Keeps the conversation moving until checkout</li>
+        <li data-i18n="s2_li4">Handles objections like price, sizing, and shipping without killing momentum</li>
       </ul>
-      <p><strong>Even a small increase in chat conversion = immediate revenue from traffic you already paid for.</strong></p>
+      <p data-i18n="s2_strong"><strong>Even a small increase in chat conversion = immediate revenue from traffic you already paid for.</strong></p>
     </section>
 
     <section class="section">
-      <h2>How it works</h2>
+      <h2 data-i18n="s3_h2">How it works</h2>
       <ul>
-        <li>Customer asks for a product</li>
-        <li>The sales system asks 1–2 quick questions</li>
-        <li>It recommends 2–3 specific products</li>
-        <li>It handles objections</li>
-        <li>It pushes the customer to checkout</li>
+        <li data-i18n="s3_li1">Customer asks for a product</li>
+        <li data-i18n="s3_li2">The sales system asks 1–2 quick questions</li>
+        <li data-i18n="s3_li3">It recommends 2–3 specific products</li>
+        <li data-i18n="s3_li4">It handles objections</li>
+        <li data-i18n="s3_li5">It pushes the customer to checkout</li>
       </ul>
-      <p><strong>Built to close — not to chat.</strong></p>
+      <p data-i18n="s3_close"><strong>Built to close — not to chat.</strong></p>
     </section>
 
     <section class="section" id="demo">
-      <h2>Live Example</h2>
-      <p>
+      <h2 data-i18n="demo_h2">Live Example</h2>
+      <p data-i18n="demo_p">
         This is exactly how a customer goes from "I'm looking for a jacket" → checkout.
       </p>
       <div class="phone-mockup">
@@ -128,53 +134,53 @@
         </div>
       </div>
       <div class="cta-row" style="margin-top:20px;">
-        <a class="btn secondary" href="./demo.html" target="_blank">Try the conversation (60s)</a>
+        <a class="btn secondary" href="./demo.html" target="_blank" data-i18n="demo_btn">Try the conversation (60s)</a>
       </div>
     </section>
 
     <section class="section">
-      <h2>What we focus on</h2>
-      <p><strong>We focus on one thing only:</strong></p>
-      <p>High-intent customers who are already asking about products.</p>
-      <p>
+      <h2 data-i18n="focus_h2">What we focus on</h2>
+      <p data-i18n="focus_p1"><strong>We focus on one thing only:</strong></p>
+      <p data-i18n="focus_p2">High-intent customers who are already asking about products.</p>
+      <p data-i18n="focus_p3">
         We don't replace your support team.
         We convert the conversations that should already be sales.
       </p>
     </section>
 
     <section class="section">
-      <h2>Before vs After</h2>
+      <h2 data-i18n="ba_h2">Before vs After</h2>
       <div class="grid">
         <div class="card">
-          <h3>Before</h3>
+          <h3 data-i18n="ba_before_h3">Before</h3>
           <ul>
-            <li>Slow or manual replies</li>
-            <li>Generic or wrong recommendations</li>
-            <li>No clear buying path</li>
-            <li>Customers drop off</li>
+            <li data-i18n="ba_before_li1">Slow or manual replies</li>
+            <li data-i18n="ba_before_li2">Generic or wrong recommendations</li>
+            <li data-i18n="ba_before_li3">No clear buying path</li>
+            <li data-i18n="ba_before_li4">Customers drop off</li>
           </ul>
         </div>
         <div class="card">
-          <h3>After</h3>
+          <h3 data-i18n="ba_after_h3">After</h3>
           <ul>
-            <li>Instant responses</li>
-            <li>Clear product recommendations</li>
-            <li>Guided buying flow</li>
-            <li>More conversions from chat</li>
+            <li data-i18n="ba_after_li1">Instant responses</li>
+            <li data-i18n="ba_after_li2">Clear product recommendations</li>
+            <li data-i18n="ba_after_li3">Guided buying flow</li>
+            <li data-i18n="ba_after_li4">More conversions from chat</li>
           </ul>
         </div>
       </div>
     </section>
 
     <section class="section footer-cta">
-      <h2>See this on your store</h2>
-      <p>
+      <h2 data-i18n="cta_h2">See this on your store</h2>
+      <p data-i18n="cta_p">
         I'll show you how this would work with your products and your current chat flow in 10 minutes.
         If you're getting messages but not enough purchases from them, this is where the leak is.
       </p>
-      <p><strong>If it doesn't clearly increase your conversion from chat, you don't move forward.</strong></p>
+      <p data-i18n="cta_core"><strong>If it doesn't clearly increase your conversion from chat, you don't move forward.</strong></p>
       <div class="cta-row" style="justify-content:center;">
-        <a class="btn" href="https://calendly.com/facundofn1906/30min" target="_blank" rel="noopener">Book a call</a>
+        <a class="btn" href="https://calendly.com/facundofn1906/30min" target="_blank" rel="noopener" data-i18n="cta_book">Book a call</a>
       </div>
     </section>
 
@@ -199,7 +205,7 @@
         <span class="footer-logo-name">Sella</span>
       </a>
 
-      <p class="footer-tagline">Convert. Close. Repeat.</p>
+      <p class="footer-tagline" data-i18n="footer_tagline">Convert. Close. Repeat.</p>
 
       <div class="footer-links">
         <a class="footer-link" href="https://x.com/sella_app" target="_blank" rel="noopener" aria-label="X / Twitter">
@@ -213,6 +219,273 @@
       </div>
     </div>
   </footer>
+
+  <script>
+    (function () {
+      // Rioplatense Spanish (Uruguay/Argentina), voseo. English is the default.
+      var I18N = {
+        "__title__": {
+          en: "Sella — AI Sales Agent",
+          es: "Sella — Agente de Ventas con IA"
+        },
+        "cta_book": {
+          en: "Book a call",
+          es: "Agendá una llamada"
+        },
+        "hero_eyebrow": {
+          en: "AI Sales Agent",
+          es: "Agente de Ventas con IA"
+        },
+        "hero_h1": {
+          en: 'Convert high-intent chats into <span class="highlight">purchases</span>',
+          es: 'Convertí chats con intención de compra en <span class="highlight">ventas</span>'
+        },
+        "hero_sub": {
+          en: "Most brands already have customers asking what to buy — they just don't convert them. We guide those conversations to the right product and push them to checkout automatically.",
+          es: "La mayoría de las marcas ya tienen clientes preguntando qué comprar — pero no los convierten. Nosotros guiamos esas conversaciones hasta el producto justo y los empujamos al checkout de forma automática."
+        },
+        "hero_btn_demo": {
+          en: "Try demo (60s)",
+          es: "Probá la demo (60s)"
+        },
+        "hero_btn_see": {
+          en: "See how it converts",
+          es: "Mirá cómo convierte"
+        },
+        "hero_note": {
+          en: "Built from real e-commerce WhatsApp conversations.",
+          es: "Hecho a partir de conversaciones reales de WhatsApp en e-commerce."
+        },
+        "s1_h2": {
+          en: "Where you're losing sales",
+          es: "Dónde estás perdiendo ventas"
+        },
+        "s1_c1_h3": {
+          en: "What happens",
+          es: "Qué pasa"
+        },
+        "s1_c1_li1": {
+          en: "Customer asks for a product — gets a category link",
+          es: "El cliente pide un producto — y le mandás un link a una categoría"
+        },
+        "s1_c1_li2": {
+          en: "Customer hesitates — no follow-up",
+          es: "El cliente duda — y nadie le hace seguimiento"
+        },
+        "s1_c1_li3": {
+          en: 'Customer says "not that one" — the flow breaks',
+          es: 'El cliente dice "ese no" — y se corta todo'
+        },
+        "s1_c1_li4": {
+          en: "The conversation depends on manual replies",
+          es: "La conversación depende de respuestas manuales"
+        },
+        "s1_c2_h3": {
+          en: "What it causes",
+          es: "Qué provoca"
+        },
+        "s1_c2_li1": {
+          en: "High-intent customers drop before buying",
+          es: "Clientes con ganas de comprar se van antes de hacerlo"
+        },
+        "s1_c2_li2": {
+          en: "Wrong or generic recommendations",
+          es: "Recomendaciones genéricas o equivocadas"
+        },
+        "s1_c2_li3": {
+          en: "No clear path to purchase",
+          es: "Ningún camino claro hacia la compra"
+        },
+        "s1_c2_li4": {
+          en: "Lost revenue from traffic you already paid for",
+          es: "Plata perdida de tráfico que ya pagaste"
+        },
+        "s2_h2": {
+          en: "What this does for your store",
+          es: "Qué hace esto por tu tienda"
+        },
+        "s2_li1": {
+          en: "Converts more WhatsApp and website chats into purchases",
+          es: "Convierte más chats de WhatsApp y de la web en ventas"
+        },
+        "s2_li2": {
+          en: "Recommends exact products instead of generic categories",
+          es: "Recomienda productos exactos en vez de categorías genéricas"
+        },
+        "s2_li3": {
+          en: "Keeps the conversation moving until checkout",
+          es: "Mantiene la conversación avanzando hasta el checkout"
+        },
+        "s2_li4": {
+          en: "Handles objections like price, sizing, and shipping without killing momentum",
+          es: "Maneja objeciones como precio, talles y envíos sin frenar la compra"
+        },
+        "s2_strong": {
+          en: "<strong>Even a small increase in chat conversion = immediate revenue from traffic you already paid for.</strong>",
+          es: "<strong>Aunque subas un poco la conversión del chat = plata inmediata de tráfico que ya pagaste.</strong>"
+        },
+        "s3_h2": {
+          en: "How it works",
+          es: "Cómo funciona"
+        },
+        "s3_li1": {
+          en: "Customer asks for a product",
+          es: "El cliente pide un producto"
+        },
+        "s3_li2": {
+          en: "The sales system asks 1–2 quick questions",
+          es: "El sistema de ventas hace 1–2 preguntas rápidas"
+        },
+        "s3_li3": {
+          en: "It recommends 2–3 specific products",
+          es: "Recomienda 2–3 productos específicos"
+        },
+        "s3_li4": {
+          en: "It handles objections",
+          es: "Maneja las objeciones"
+        },
+        "s3_li5": {
+          en: "It pushes the customer to checkout",
+          es: "Empuja al cliente al checkout"
+        },
+        "s3_close": {
+          en: "<strong>Built to close — not to chat.</strong>",
+          es: "<strong>Hecho para cerrar, no para chatear.</strong>"
+        },
+        "demo_h2": {
+          en: "Live Example",
+          es: "Ejemplo en vivo"
+        },
+        "demo_p": {
+          en: 'This is exactly how a customer goes from "I\'m looking for a jacket" → checkout.',
+          es: 'Así es exactamente cómo un cliente va de "estoy buscando una campera" → al checkout.'
+        },
+        "demo_btn": {
+          en: "Try the conversation (60s)",
+          es: "Probá la conversación (60s)"
+        },
+        "focus_h2": {
+          en: "What we focus on",
+          es: "En qué nos enfocamos"
+        },
+        "focus_p1": {
+          en: "<strong>We focus on one thing only:</strong>",
+          es: "<strong>Nos enfocamos en una sola cosa:</strong>"
+        },
+        "focus_p2": {
+          en: "High-intent customers who are already asking about products.",
+          es: "Clientes con intención de compra que ya están preguntando por productos."
+        },
+        "focus_p3": {
+          en: "We don't replace your support team. We convert the conversations that should already be sales.",
+          es: "No reemplazamos a tu equipo de soporte. Convertimos las conversaciones que ya deberían ser ventas."
+        },
+        "ba_h2": {
+          en: "Before vs After",
+          es: "Antes vs Después"
+        },
+        "ba_before_h3": {
+          en: "Before",
+          es: "Antes"
+        },
+        "ba_before_li1": {
+          en: "Slow or manual replies",
+          es: "Respuestas lentas o manuales"
+        },
+        "ba_before_li2": {
+          en: "Generic or wrong recommendations",
+          es: "Recomendaciones genéricas o equivocadas"
+        },
+        "ba_before_li3": {
+          en: "No clear buying path",
+          es: "Sin un camino claro de compra"
+        },
+        "ba_before_li4": {
+          en: "Customers drop off",
+          es: "Los clientes se van"
+        },
+        "ba_after_h3": {
+          en: "After",
+          es: "Después"
+        },
+        "ba_after_li1": {
+          en: "Instant responses",
+          es: "Respuestas instantáneas"
+        },
+        "ba_after_li2": {
+          en: "Clear product recommendations",
+          es: "Recomendaciones de productos claras"
+        },
+        "ba_after_li3": {
+          en: "Guided buying flow",
+          es: "Un flujo de compra guiado"
+        },
+        "ba_after_li4": {
+          en: "More conversions from chat",
+          es: "Más conversiones desde el chat"
+        },
+        "cta_h2": {
+          en: "See this on your store",
+          es: "Mirá esto en tu tienda"
+        },
+        "cta_p": {
+          en: "I'll show you how this would work with your products and your current chat flow in 10 minutes. If you're getting messages but not enough purchases from them, this is where the leak is.",
+          es: "En 10 minutos te muestro cómo funcionaría con tus productos y tu flujo de chat actual. Si te llegan mensajes pero no se traducen en suficientes ventas, acá es donde se te escapa la plata."
+        },
+        "cta_core": {
+          en: "<strong>If it doesn't clearly increase your conversion from chat, you don't move forward.</strong>",
+          es: "<strong>Si no te aumenta claramente la conversión desde el chat, no avanzás.</strong>"
+        },
+        "footer_tagline": {
+          en: "Convert. Close. Repeat.",
+          es: "Convertí. Cerrá. Repetí."
+        }
+      };
+
+      var STORAGE_KEY = "sella_lang";
+
+      function apply(lang) {
+        if (lang !== "en" && lang !== "es") lang = "en";
+        document.documentElement.lang = lang;
+
+        var nodes = document.querySelectorAll("[data-i18n]");
+        for (var i = 0; i < nodes.length; i++) {
+          var key = nodes[i].getAttribute("data-i18n");
+          var entry = I18N[key];
+          if (entry && entry[lang] != null) nodes[i].innerHTML = entry[lang];
+        }
+
+        if (I18N.__title__ && I18N.__title__[lang]) {
+          document.title = I18N.__title__[lang];
+        }
+
+        var opts = document.querySelectorAll(".lang-opt");
+        for (var j = 0; j < opts.length; j++) {
+          var isActive = opts[j].getAttribute("data-lang") === lang;
+          opts[j].classList.toggle("active", isActive);
+          opts[j].setAttribute("aria-pressed", isActive ? "true" : "false");
+        }
+
+        try { localStorage.setItem(STORAGE_KEY, lang); } catch (e) {}
+      }
+
+      // Respect a saved choice; default to English when none exists.
+      var saved = "en";
+      try {
+        var s = localStorage.getItem(STORAGE_KEY);
+        if (s === "en" || s === "es") saved = s;
+      } catch (e) {}
+
+      var opts = document.querySelectorAll(".lang-opt");
+      for (var k = 0; k < opts.length; k++) {
+        opts[k].addEventListener("click", function () {
+          apply(this.getAttribute("data-lang"));
+        });
+      }
+
+      apply(saved);
+    })();
+  </script>
 
 </body>
 </html>
