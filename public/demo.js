@@ -271,10 +271,15 @@ const DEMO_I18N = {
 
 let demoLang = "en";
 
+// Precedence: ?lang query param → shared localStorage choice → default English.
 function getInitialDemoLang() {
   try {
     const q = new URLSearchParams(window.location.search).get("lang");
     if (q === "en" || q === "es") return q;
+  } catch (e) {}
+  try {
+    const saved = localStorage.getItem("sella_lang"); // same key as the landing page
+    if (saved === "en" || saved === "es") return saved;
   } catch (e) {}
   return "en";
 }
@@ -311,6 +316,14 @@ function applyDemoLang(lang) {
   if (input) input.placeholder = t.placeholder;
   const sendBtn = document.querySelector(".send-btn");
   if (sendBtn) sendBtn.textContent = t.send;
+
+  // Reflect the current language on the standalone toggle (if shown)
+  const opts = document.querySelectorAll("#langToggle .lang-opt");
+  opts.forEach(function (b) {
+    const active = b.getAttribute("data-lang") === lang;
+    b.classList.toggle("active", active);
+    b.setAttribute("aria-pressed", active ? "true" : "false");
+  });
 }
 
 // Respond to the landing page toggle (separate document → postMessage)
@@ -321,7 +334,28 @@ window.addEventListener("message", function (e) {
   }
 });
 
-// Read the language on load (query param when opened directly), default English
+// Standalone page only: show the EN | ES toggle and let the visitor switch.
+// When embedded in the landing iframe, the landing page owns the language, so
+// the toggle stays hidden and behavior is unchanged.
+const isEmbedded = window.self !== window.top;
+
+function setupStandaloneToggle() {
+  const toggle = document.getElementById("langToggle");
+  if (!toggle || isEmbedded) return;
+  toggle.classList.add("standalone");
+  toggle.querySelectorAll(".lang-opt").forEach(function (b) {
+    b.addEventListener("click", function () {
+      const lang = b.getAttribute("data-lang");
+      applyDemoLang(lang);
+      // Persist to the same key the landing page uses, so the choice stays in sync.
+      try { localStorage.setItem("sella_lang", lang); } catch (e) {}
+    });
+  });
+}
+
+setupStandaloneToggle();
+
+// Read the language on load: ?lang → localStorage sella_lang → English
 applyDemoLang(getInitialDemoLang());
 
 // ─── Init ─────────────────────────────────────────────────────────────────────

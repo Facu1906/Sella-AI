@@ -15,6 +15,51 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
 
+    /* ─── Language toggle (standalone page only; hidden when embedded) ─── */
+    .lang-toggle {
+      position: fixed;
+      top: 14px;
+      right: 16px;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      gap: 3px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(20, 17, 38, 0.72);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.4);
+    }
+
+    .lang-toggle.standalone { display: inline-flex; }
+
+    .lang-opt {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: rgba(240, 242, 248, 0.5);
+      padding: 2px 5px;
+      border-radius: 8px;
+      transition: color 0.18s ease;
+    }
+
+    .lang-opt:hover { color: var(--text); }
+
+    .lang-opt.active { color: rgba(185, 168, 255, 0.95); }
+
+    .lang-sep {
+      color: rgba(255, 255, 255, 0.22);
+      font-size: 12px;
+      font-weight: 600;
+      user-select: none;
+    }
+
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       -webkit-font-smoothing: antialiased;
