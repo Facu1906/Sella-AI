@@ -190,7 +190,7 @@ async function sendToServer(message) {
     const response = await fetch("https://sella-agent.onrender.com/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, lang: demoLang }),
     });
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
