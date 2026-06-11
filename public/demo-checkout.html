@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo Checkout — Sella</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0b1a;
+      --panel: rgba(255, 255, 255, 0.055);
+      --line: rgba(255, 255, 255, 0.085);
+      --text: #f0f2f8;
+      --muted: #8d94a8;
+      --accent: #7c5cfc;
+      --accent-2: #ff7a59;
+      --success: #39d98a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(124, 92, 255, 0.18), transparent 30%),
+        radial-gradient(circle at 80% 0%, rgba(255, 122, 89, 0.12), transparent 30%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .card {
+      width: min(440px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+      padding: 36px 32px;
+      text-align: center;
+    }
+
+    .check {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      margin: 0 auto 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(57, 217, 138, 0.12);
+      border: 1px solid rgba(57, 217, 138, 0.35);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(124, 92, 252, 0.3);
+      color: rgba(185, 168, 255, 0.9);
+      background: rgba(124, 92, 252, 0.1);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .price {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 18px;
+    }
+
+    .specs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .spec {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .spec span { color: var(--muted); margin-right: 5px; }
+
+    .note {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muted);
+      margin-bottom: 26px;
+    }
+
+    .pay-btn {
+      display: block;
+      width: 100%;
+      border: none;
+      border-radius: 999px;
+      padding: 15px 24px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      color: white;
+      cursor: default;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 10px 28px rgba(124, 92, 252, 0.35);
+      opacity: 0.85;
+      margin-bottom: 16px;
+    }
+
+    .back {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.18s ease;
+    }
+
+    .back:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="check">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 12.5L9.5 18L20 6.5" stroke="#39d98a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="badge" id="badge">Demo checkout</div>
+    <h1 id="productName">Product</h1>
+    <div class="price" id="productPrice"></div>
+    <div class="specs">
+      <div class="spec" id="specColor"></div>
+      <div class="spec" id="specSize"></div>
+    </div>
+    <p class="note" id="note"></p>
+    <button type="button" class="pay-btn" id="payBtn">Complete purchase</button>
+    <a class="back" href="./demo.html" id="backLink">← Back to the demo</a>
+  </div>
+
+  <script>
+    (function () {
+      // Mirror of the agent's demo catalog (slug → name/price). Keep in sync
+      // with sella-agent/index.js CATALOG.
+      var CATALOG = {
+        "puffer-oversize":    { name: "Puffer Oversize Jacket", price: 89.99 },
+        "bomber-urban":       { name: "Urban Bomber Jacket",    price: 74.99 },
+        "windbreaker-pro":    { name: "Windbreaker Pro",        price: 59.99 },
+        "hoodie-classic":     { name: "Classic Hoodie",         price: 49.99 },
+        "crewneck-essential": { name: "Essential Crewneck",     price: 39.99 },
+        "joggers-comfort":    { name: "Comfort Joggers",        price: 44.99 }
+      };
+
+      var COLOR_ES = {
+        black: "negro", olive: "oliva", navy: "azul marino", red: "rojo",
+        gray: "gris", cream: "crema", white: "blanco"
+      };
+
+      var I18N = {
+        en: {
+          title: "Demo Checkout — Sella",
+          badge: "Demo checkout",
+          color: "Color",
+          size: "Size",
+          note: "Demo checkout — this is where your customer completes the purchase in a real store. Payment, shipping and order confirmation would happen right here.",
+          pay: "Complete purchase",
+          back: "← Back to the demo",
+          unknown: "Your selected product"
+        },
+        es: {
+          title: "Checkout de demo — Sella",
+          badge: "Checkout de demo",
+          color: "Color",
+          size: "Talle",
+          note: "Checkout de demostración — acá es donde tu cliente completa la compra en una tienda real. El pago, el envío y la confirmación del pedido pasarían justo acá.",
+          pay: "Completar compra",
+          back: "← Volvé a la demo",
+          unknown: "El producto que elegiste"
+        }
+      };
+
+      // Language: same key the rest of the site uses; default English.
+      var lang = "en";
+      try {
+        var q = new URLSearchParams(location.search).get("lang");
+        var saved = localStorage.getItem("sella_lang");
+        if (q === "en" || q === "es") lang = q;
+        else if (saved === "en" || saved === "es") lang = saved;
+      } catch (e) {}
+      var t = I18N[lang];
+      document.documentElement.lang = lang;
+      document.title = t.title;
+
+      // The agent's link pattern: ?product=<slug>-<color>-<size>
+      // Slugs contain hyphens, so parse from the end: size = last segment,
+      // color = second-to-last, slug = the rest.
+      var product = null, color = null, size = null;
+      try {
+        var raw = new URLSearchParams(location.search).get("product") || "";
+        var parts = raw.split("-");
+        if (parts.length >= 3) {
+          size = parts.pop().toUpperCase();
+          color = parts.pop().toLowerCase();
+          product = CATALOG[parts.join("-")] || null;
+        }
+      } catch (e) {}
+
+      document.getElementById("badge").textContent = t.badge;
+      document.getElementById("note").textContent = t.note;
+      document.getElementById("payBtn").textContent = t.pay;
+      document.getElementById("backLink").textContent = t.back;
+
+      document.getElementById("productName").textContent = product ? product.name : t.unknown;
+      document.getElementById("productPrice").textContent = product ? "$" + product.price.toFixed(2) : "";
+
+      var colorLabel = color ? (lang === "es" ? (COLOR_ES[color] || color) : color) : null;
+      var specColor = document.getElementById("specColor");
+      var specSize = document.getElementById("specSize");
+      if (colorLabel) specColor.innerHTML = "<span>" + t.color + ":</span>" + colorLabel;
+      else specColor.style.display = "none";
+      if (size) specSize.innerHTML = "<span>" + t.size + ":</span>" + size;
+      else specSize.style.display = "none";
+    })();
+  </script>
+</body>
+</html>
